@@ -1,0 +1,25 @@
+contract_version: 1
+id_policy:
+  statement_id_prefix: "stmt_"
+  action_id_prefix: "act_"
+  link_id_prefix: "link_"
+
+export_policy:
+  exports_path: "datasets/exports"
+  exports:
+    - name: statements_csv
+      file: "statements.csv"
+      record_type: statement
+    - name: actions_csv
+      file: "actions.csv"
+      record_type: action
+    - name: links_csv
+      file: "links.csv"
+      record_type: link
+
+join_keys:
+  preferred:
+    - id
+  secondary:
+    - primary_source_url
+    - date_time_utc
