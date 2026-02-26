@@ -1,0 +1,20 @@
+contract_version: 1
+ingest:
+  runner: "python"
+  entrypoint: "CORE/ingest_pipeline/url_list_ingest.py"
+  parameters:
+    - name: subject
+      source: env.SUBJECT
+    - name: topic_cluster
+      source: env.TOPIC_CLUSTER
+      default: general
+    - name: urls
+      source: env.URLS_FILE
+
+targets:
+  - name: primary_subject_ingest
+    urls_file_glob: "seeds/sources.urls.txt"
+    subject_template: "Donald J. Trump"
+
+schedule:
+  default_cron: "0 7 * * 1"
