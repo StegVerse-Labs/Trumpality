@@ -1,0 +1,18 @@
+contract_version: 1
+repo_id: stegverse.trumpality
+repo_type: subject_audit
+scope:
+  subject: "Donald J. Trump"
+  timeframe: "all"
+modes:
+  biography: true
+  rhetoric_action_ledger: true
+free_dom:
+  enabled: true
+  mode: involvement
+authority:
+  governed_by: stegverse.stegcore
+outputs:
+  primary_records_path: "records"
+  graph_path: "freedom"
+  exports_path: "datasets/exports"
