@@ -1,0 +1,15 @@
+contract_version: 1
+auto_generate:
+  - kind: "records"
+    paths:
+      - "records/statements/{year}/"
+      - "records/actions/{year}/"
+      - "records/links/{year}/"
+    when: "new_evidence_detected"
+
+  - kind: "exports"
+    paths:
+      - "datasets/exports/statements.csv"
+      - "datasets/exports/actions.csv"
+      - "datasets/exports/links.csv"
+    when: "ingest_complete"
