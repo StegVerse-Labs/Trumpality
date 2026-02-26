@@ -1,0 +1,15 @@
+contract_version: 1
+governance:
+  governed_by: "stegverse.stegcore"
+
+policies:
+  require_reputable_source: true
+  allow_secondary_if_cites_primary: true
+  ban_memes: true
+  require_verbatim_for_statements: true
+  append_only_records: true
+
+safety:
+  prohibit_unredaction_attempts: true
+  prohibit_private_person_doxxing: true
+  require_confirmed_vs_alleged_labels: true
