@@ -1,0 +1,18 @@
+contract_version: 1
+append_only: true
+
+record_types:
+  statement:
+    path: "records/statements/YYYY/"
+    required_fields: [id, speaker, date_time_utc, venue, verbatim_quote, primary_source_url, media_type, tags, claim_targets, status]
+  action:
+    path: "records/actions/YYYY/"
+    required_fields: [id, date, actor, policy_instrument, scope, primary_source_url, tags, impacted_populations, status]
+  link:
+    path: "records/links/YYYY/"
+    required_fields: [id, statement_id, action_id, relationship_type, lag_days, court_status, outcome_summary, status]
+
+schemas:
+  statement: "schemas/statement_record.md"
+  action: "schemas/action_record.md"
+  link: "schemas/link_record.md"
