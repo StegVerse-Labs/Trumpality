@@ -1,0 +1,34 @@
+{
+  "ingestion_id": "TRUMPALITY-EXPORT-EO14179-ACTION-001",
+  "producer_repo": "StegVerse-Labs/Trumpality",
+  "producer_path": "ledger_exports/executive_rhetoric_ledger/PIT-MODERN-2025-AI-EO-14179__action_record__2025-01-23__SRC-2025-EO14179-FR-001.json",
+  "producer_commit": "pending-current-commit",
+  "ingestion_date": "2026-06-15",
+  "object_class": "action_record",
+  "related_topic_id": "PIT-MODERN-2025-AI-EO-14179",
+  "related_topic_name": "Executive Order 14179 and Federal AI Leadership Framing",
+  "source_receipts": [
+    {
+      "source_id": "SRC-2025-EO14179-FR-001",
+      "title": "Removing Barriers to American Leadership in Artificial Intelligence",
+      "url": "https://www.federalregister.gov/documents/2025/01/31/2025-02172/removing-barriers-to-american-leadership-in-artificial-intelligence",
+      "archive_url": "",
+      "access_date": "2026-06-15",
+      "publication_date": "2025-01-31",
+      "source_type": "executive-order",
+      "institutional_proximity": "direct-origin",
+      "evidence_role": "action-conversion-source",
+      "verification_status": "verified-primary",
+      "admissibility_use": "admissible-for-action-record",
+      "confidence": "high",
+      "red_flags": [],
+      "notes": "This source proves the executive order text and action record. It does not independently prove the factual claim that prior AI policies were barriers to innovation."
+    }
+  ],
+  "content_summary": "Producer export test for EO 14179 as an action record relevant to the Executive Rhetoric Ledger.",
+  "ledger_relevance": "Tests cross-repo export from Trumpality into Executive_Rhetoric_Ledger ingestion structure.",
+  "claimed_use": "action-record",
+  "admissibility_request": "action-record",
+  "review_status": "pending",
+  "notes": "Initial upstream producer export test. Final admissibility classification remains with Executive_Rhetoric_Ledger."
+}
