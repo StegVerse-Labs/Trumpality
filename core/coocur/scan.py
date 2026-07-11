@@ -90,7 +90,7 @@ def main():
 
     # Compute strengths and persist
     # Ensure table
-    conn.executescript(open("CORE/cooccur/schema_cooccurrence.sql").read())
+    conn.executescript(open("core/cooccur/schema_cooccurrence.sql").read())
 
     outf = []
     for b in bins:
