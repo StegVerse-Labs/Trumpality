@@ -6,7 +6,7 @@ DB_PATH = "data/processed/records.sqlite"
 def ensure_db():
   os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
   conn = sqlite3.connect(DB_PATH)
-  with open("CORE/schema.sql", "r") as f:
+  with open("core/schema.sql", "r") as f:
     conn.executescript(f.read())
   return conn
 
