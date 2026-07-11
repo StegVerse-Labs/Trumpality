@@ -1,8 +1,8 @@
 import argparse, requests, time
 from bs4 import BeautifulSoup
 from urllib.parse import urlparse
-from CORE.ingest_pipeline.base_ingest import ensure_db, insert_record
-from CORE.verification import source_confidence, verification_label
+from core.ingest_pipeline.base_ingest import ensure_db, insert_record
+from core.verification import source_confidence, verification_label
 
 def fetch(url):
   r = requests.get(url, timeout=30, headers={"User-Agent":"Trumpality/1.0"})
