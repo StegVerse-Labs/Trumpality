@@ -18,7 +18,7 @@ jobs:
       - name: Install deps
         run: |
           python -m pip install --upgrade pip
-          pip install -r CORE/requirements.txt
+          pip install -r core/requirements.txt
 
       - name: Initialize DB (if needed)
         run: |
@@ -26,14 +26,14 @@ jobs:
           import sqlite3, os
           os.makedirs('data/processed', exist_ok=True)
           conn = sqlite3.connect('data/processed/records.sqlite')
-          conn.executescript(open('CORE/schema.sql').read())
+          conn.executescript(open('core/schema.sql').read())
           conn.commit(); conn.close()
           print('DB initialized')
           PY
 
       - name: Ingest seeds
         run: |
-          python CORE/ingest_pipeline/url_list_ingest.py \
+          python core/ingest_pipeline/url_list_ingest.py \
             --subject "Donald J. Trump" \
             --topic_cluster general \
             --urls seeds/sources.urls.txt
