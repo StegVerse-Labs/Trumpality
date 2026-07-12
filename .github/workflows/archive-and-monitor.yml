@@ -62,10 +62,13 @@ jobs:
       - name: Monitor link health
         run: python core/archival/monitor_links.py
 
-      - name: Commit snapshots and receipts
+      - name: Emit pending ledger candidates
+        run: python core/exports/export_ledger_candidates.py
+
+      - name: Commit snapshots, exports, and receipts
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "actions@github.com"
-          git add data/processed data/archive data/receipts
-          git commit -m "archive+monitor: update snapshots, health, and receipts" || echo "no changes"
+          git add data/processed data/archive data/receipts datasets/exports
+          git commit -m "archive+monitor: update snapshots, exports, health, and receipts" || echo "no changes"
           git push
