@@ -1,0 +1,21 @@
+contract_version: 1
+contract_id: trumpality.executive_rhetoric_ledger.acknowledgment
+producer_repo: StegVerse-Labs/Trumpality
+ledger_repo: StegVerse-Labs/Executive_Rhetoric_Ledger
+input_schema: schemas/producer-acknowledgment.schema.json
+input_authority: Executive Rhetoric Ledger governed review
+accepted_kinds:
+  - initial-review
+  - correction
+  - supersession
+  - duplicate-resolution
+storage:
+  object_directory: data/receipts/ledger_acknowledgments
+  append_log: data/receipts/ledger_acknowledgments.jsonl
+rules:
+  - acknowledgment ingestion never mutates the native source record
+  - acknowledgment ingestion never changes source truth or verification status automatically
+  - corrections and supersessions preserve prior acknowledgments
+  - only one current acknowledgment may remain per ingestion_id
+  - context-only acceptance must not be expanded into factual-basis standing
+  - rejected or needs-* decisions remain actionable review posture rather than deletion authority
