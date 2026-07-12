@@ -1,8 +1,13 @@
-name: weekly-ingest
+name: manual-native-ingest-and-export
 on:
-  schedule:
-    - cron: "0 7 * * 1"   # Mondays 07:00 UTC
   workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: manual-native-ingest-${{ github.repository }}
+  cancel-in-progress: false
 
 jobs:
   ingest:
@@ -20,15 +25,17 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r core/requirements.txt
 
-      - name: Initialize DB (if needed)
+      - name: Initialize DB if needed
         run: |
           python - <<'PY'
-          import sqlite3, os
-          os.makedirs('data/processed', exist_ok=True)
-          conn = sqlite3.connect('data/processed/records.sqlite')
-          conn.executescript(open('core/schema.sql').read())
-          conn.commit(); conn.close()
-          print('DB initialized')
+          import os
+          import sqlite3
+          os.makedirs("data/processed", exist_ok=True)
+          conn = sqlite3.connect("data/processed/records.sqlite")
+          conn.executescript(open("core/schema.sql", encoding="utf-8").read())
+          conn.commit()
+          conn.close()
+          print("DB initialized")
           PY
 
       - name: Ingest seeds
@@ -38,10 +45,13 @@ jobs:
             --topic_cluster general \
             --urls seeds/sources.urls.txt
 
-      - name: Commit changes (if any)
+      - name: Emit pending ledger candidates
+        run: python core/exports/export_ledger_candidates.py
+
+      - name: Commit native outputs and receipts
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "actions@github.com"
-          git add -A
-          git commit -m "weekly: ingest updates" || echo "no changes"
+          git add data/processed data/receipts datasets/exports
+          git commit -m "manual ingest: update records, exports, and receipts" || echo "no changes"
           git push
