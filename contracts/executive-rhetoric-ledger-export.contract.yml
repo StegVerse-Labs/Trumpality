@@ -1,0 +1,42 @@
+contract_version: 1
+producer_repo: "StegVerse-Labs/Trumpality"
+consumer_repo: "StegVerse-Labs/Executive_Rhetoric_Ledger"
+producer_output_path: "datasets/exports/executive-rhetoric-ledger"
+producer_receipt_path: "data/receipts/export_receipts.jsonl"
+consumer_acknowledgment_path: "producer_exports/acknowledgments/Trumpality"
+
+boundary:
+  export_status: "candidate-only"
+  default_claimed_use: "context-only"
+  default_admissibility_request: "context-only"
+  default_review_status: "pending"
+  source_role: "context-only-source"
+  evidence_effect: "none-until-ledger-review"
+
+required_preservation:
+  - native_record_id
+  - producer_path
+  - producer_commit
+  - source_url
+  - source_title
+  - source_attribution
+  - verification_label
+  - source_confidence
+  - archive_reference_when_available
+  - record_created_at
+  - record_updated_at
+
+prohibitions:
+  - "Do not export a co-occurrence score as proof of coordination or causation"
+  - "Do not convert Trumpality verification labels directly into ledger acceptance"
+  - "Do not mark an export accepted before a ledger acknowledgment exists"
+  - "Do not export private-person or restricted material without governed filtering"
+
+acknowledgment_states:
+  - received
+  - accepted-for-context
+  - needs-primary-source
+  - needs-archive
+  - rejected-duplicate
+  - rejected-unsupported
+  - rejected-out-of-scope
