@@ -3,41 +3,69 @@ on:
   workflow_dispatch:
   schedule:
     - cron: "0 8 * * 2,5"  # Tue & Fri 08:00 UTC
+
+permissions:
+  contents: write
+
+concurrency:
+  group: archive-monitor-${{ github.repository }}
+  cancel-in-progress: false
+
 jobs:
   run:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+
       - name: Install deps
         run: |
           python -m pip install --upgrade pip
-          pip install -r CORE/requirements.txt
-      - name: Apply schema patch (idempotent)
+          pip install -r core/requirements.txt
+
+      - name: Initialize database and archive columns
         run: |
           python - <<'PY'
-          import sqlite3, os, sys
+          import os
+          import sqlite3
+          import sys
+
           db = "data/processed/records.sqlite"
           if not os.path.exists(db):
-            print("No DB yet; run weekly-ingest first."); sys.exit(0)
+              print("No DB yet; run weekly-ingest first.")
+              sys.exit(0)
+
           conn = sqlite3.connect(db)
-          try:
-            conn.executescript(open("CORE/schema_patch.sql").read())
-          except Exception as e:
-            print("Schema patch already applied or not needed:", e)
-          conn.commit(); conn.close()
+          existing = {row[1] for row in conn.execute("PRAGMA table_info(records)")}
+          additions = {
+              "archive_wayback": "TEXT",
+              "archive_local_path": "TEXT",
+              "checksum_sha256": "TEXT",
+              "last_verified_at": "TEXT",
+              "last_status_code": "INTEGER",
+              "link_ok": "INTEGER DEFAULT 1",
+          }
+          for name, declaration in additions.items():
+              if name not in existing:
+                  conn.execute(f"ALTER TABLE records ADD COLUMN {name} {declaration}")
+          conn.commit()
+          conn.close()
           PY
-      - name: Archive newest records
-        run: python CORE/archival/archiver.py
+
+      - name: Archive source records
+        run: python core/archival/archiver.py
+
       - name: Monitor link health
-        run: python CORE/archival/monitor_links.py
-      - name: Commit changes
+        run: python core/archival/monitor_links.py
+
+      - name: Commit snapshots and receipts
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "actions@github.com"
-          git add -A
-          git commit -m "archive+monitor: updated snapshots and link health" || echo "no changes"
+          git add data/processed data/archive data/receipts
+          git commit -m "archive+monitor: update snapshots, health, and receipts" || echo "no changes"
           git push
