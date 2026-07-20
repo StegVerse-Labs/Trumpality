@@ -65,10 +65,25 @@ jobs:
       - name: Emit pending ledger candidates
         run: python core/exports/export_ledger_candidates.py
 
-      - name: Commit snapshots, exports, and receipts
+      - name: Generate commit and hash bound ledger manifest
+        run: python core/exports/build_ledger_manifest.py
+
+      - name: Validate manifest authority boundary
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          path = Path("datasets/exports/executive-rhetoric-ledger/manifest.json")
+          manifest = json.loads(path.read_text())
+          assert manifest["producer_repository"] == "StegVerse-Labs/Trumpality"
+          assert manifest["authority"]["may_promote"] is False
+          assert manifest["authority"]["requires_ledger_review"] is True
+          PY
+
+      - name: Commit snapshots, exports, manifests, and receipts
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "actions@github.com"
           git add data/processed data/archive data/receipts datasets/exports
-          git commit -m "archive+monitor: update snapshots, exports, health, and receipts" || echo "no changes"
+          git commit -m "archive+monitor: update snapshots, exports, manifest, health, and receipts" || echo "no changes"
           git push
