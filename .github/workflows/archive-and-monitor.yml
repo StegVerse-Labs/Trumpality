@@ -3,6 +3,13 @@ on:
   workflow_dispatch:
   schedule:
     - cron: "0 8 * * 2,5"  # Tue & Fri 08:00 UTC
+  push:
+    branches:
+      - main
+    paths:
+      - "core/exports/export_ledger_candidates.py"
+      - "core/exports/build_ledger_manifest.py"
+      - ".github/workflows/archive-and-monitor.yml"
 
 permissions:
   contents: write
