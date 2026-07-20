@@ -1,0 +1,42 @@
+{
+  "contract_version": "1.0.0",
+  "producer": {
+    "repository": "StegVerse-Labs/Trumpality",
+    "capability_id": "trumpality-political-context-producer-v1",
+    "record_classes": ["political", "historical", "action_record", "source_receipt"]
+  },
+  "consumer": "StegVerse-Labs/Executive_Rhetoric_Ledger",
+  "exports": {
+    "root_path": "datasets/exports/executive-rhetoric-ledger",
+    "format": "json",
+    "manifest_path": "datasets/exports/executive-rhetoric-ledger/manifest.json",
+    "receipt_path": "data/receipts/export_receipts.jsonl"
+  },
+  "preservation": [
+    "native_record_id",
+    "producer_path",
+    "producer_commit",
+    "source_url",
+    "source_title",
+    "source_attribution",
+    "source_posture",
+    "source_confidence",
+    "archive_reference",
+    "record_created_at",
+    "record_updated_at",
+    "supersedes",
+    "corrects"
+  ],
+  "authority": {
+    "export_status": "candidate-only",
+    "may_claim_truth": false,
+    "may_classify_final": false,
+    "may_promote": false,
+    "requires_ledger_review": true
+  },
+  "lifecycle": {
+    "acknowledgment_states": ["received", "accepted-for-context", "needs-primary-source", "needs-archive", "rejected-duplicate", "rejected-unsupported", "rejected-out-of-scope"],
+    "retry_policy": {"max_attempts": 5, "backoff_seconds": [60, 300, 900, 3600, 21600]},
+    "deprecation_requires_governed_record": true
+  }
+}
