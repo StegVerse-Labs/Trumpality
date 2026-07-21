@@ -1,0 +1,43 @@
+name: Consume ERL Acknowledgments
+
+on:
+  schedule:
+    - cron: "41 */6 * * *"
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "scripts/consume_erl_acknowledgments.py"
+      - ".github/workflows/consume-erl-acknowledgments.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  consume:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Consume destination-owned acknowledgment observations
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python scripts/consume_erl_acknowledgments.py
+      - name: Validate authority and commit receipts
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          for path in Path('data/receipts/executive-rhetoric-ledger-acknowledgments').glob('*.json'):
+              doc = json.loads(path.read_text())
+              auth = doc['authority']
+              if auth['may_accept_evidence'] or auth['may_classify_final'] or auth['may_promote'] or auth['may_publish']:
+                  raise SystemExit('Acknowledgment consumption exceeded producer authority')
+          PY
+          git config user.name "stegverse-ack-consumer[bot]"
+          git config user.email "stegverse-ack-consumer@users.noreply.github.com"
+          git add data/receipts/executive-rhetoric-ledger-acknowledgments
+          git commit -m "chore: consume ERL acknowledgment observations" || echo "no changes"
+          git push
