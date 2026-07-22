@@ -1,0 +1,18 @@
+contract_version: 1
+contract_id: trumpality.executive_rhetoric_ledger.reviewed_projection
+source_repo: StegVerse-Labs/Executive_Rhetoric_Ledger
+destination_repo: StegVerse-Labs/Trumpality
+input_schema: stegverse.executive_rhetoric_ledger.person_specific_projection.v1
+input_path: data/incoming/executive_rhetoric_ledger/reviewed-projection.json
+storage:
+  object_directory: data/receipts/ledger_reviewed_projections
+  append_log: data/receipts/ledger_reviewed_projections.jsonl
+  current_index: data/receipts/ledger_reviewed_projection_current.json
+rules:
+  - only explicitly related reviewed ledger entries may be imported
+  - projection import never mutates native source records
+  - projection import never changes native verification labels
+  - projection import never establishes culpability, causation, coordination, or factual truth beyond the ledger receipt scope
+  - prior projections remain append-only and supersession must be explicit
+  - source repository, destination repository, receipt path, receipt SHA-256, and projection SHA-256 must validate
+  - delivery and acknowledgment remain distinct states
