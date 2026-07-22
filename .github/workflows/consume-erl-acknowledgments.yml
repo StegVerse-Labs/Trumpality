@@ -1,4 +1,4 @@
-name: Consume ERL Acknowledgments
+name: Consume ERL Acknowledgments and Reviewed Projections
 
 on:
   schedule:
@@ -8,6 +8,8 @@ on:
     branches: [main]
     paths:
       - "scripts/consume_erl_acknowledgments.py"
+      - "core/exports/import_reviewed_ledger_projection.py"
+      - "contracts/executive-rhetoric-ledger-reviewed-projection.contract.yml"
       - ".github/workflows/consume-erl-acknowledgments.yml"
 
 permissions:
@@ -21,7 +23,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      - name: Consume destination-owned acknowledgment observations
+      - name: Consume destination-owned acknowledgment and reviewed-projection observations
         env:
           GH_TOKEN: ${{ github.token }}
         run: python scripts/consume_erl_acknowledgments.py
@@ -35,9 +37,18 @@ jobs:
               auth = doc['authority']
               if auth['may_accept_evidence'] or auth['may_classify_final'] or auth['may_promote'] or auth['may_publish']:
                   raise SystemExit('Acknowledgment consumption exceeded producer authority')
+          current = Path('data/receipts/ledger_reviewed_projection_current.json')
+          if current.exists():
+              projection = json.loads(current.read_text())
+              if projection['native_records_mutated'] or projection['verification_labels_changed'] or projection['projection_is_factual_truth_authority']:
+                  raise SystemExit('Reviewed projection import exceeded destination authority')
           PY
           git config user.name "stegverse-ack-consumer[bot]"
           git config user.email "stegverse-ack-consumer@users.noreply.github.com"
-          git add data/receipts/executive-rhetoric-ledger-acknowledgments
-          git commit -m "chore: consume ERL acknowledgment observations" || echo "no changes"
+          git add \
+            data/receipts/executive-rhetoric-ledger-acknowledgments \
+            data/receipts/ledger_reviewed_projections \
+            data/receipts/ledger_reviewed_projections.jsonl \
+            data/receipts/ledger_reviewed_projection_current.json
+          git commit -m "chore: consume ERL acknowledgments and reviewed projections" || echo "no changes"
           git push
