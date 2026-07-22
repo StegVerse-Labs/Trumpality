@@ -1,0 +1,17 @@
+{
+  "entry_count": 1,
+  "materialization": {
+    "method": "governed-destination-pr",
+    "reason": "connected source merge did not trigger destination scheduled consumer",
+    "source_commit": "713bc49d456d306e902795b7ebdd83904a37cd26",
+    "source_path": "person_specific_projections/trumpality.json"
+  },
+  "native_records_mutated": false,
+  "object_path": "data/receipts/ledger_reviewed_projections/PERSON-PROJECTION-52A448F378F954A10E3F.json",
+  "projection_id": "PERSON-PROJECTION-52A448F378F954A10E3F",
+  "projection_is_factual_truth_authority": false,
+  "projection_sha256": "e45b8267ba348f58396a87195aede901b5eabdf96ba3da7299b92e24834bda03",
+  "schema": "trumpality.ledger_reviewed_projection_current.v1",
+  "updated_at": "2026-07-22T04:15:00Z",
+  "verification_labels_changed": false
+}
