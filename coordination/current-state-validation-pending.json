@@ -1,0 +1,7 @@
+{
+  "schema": "stegverse.trumpality.current_state_validation_pending.v1",
+  "state": "MACHINE_OBSERVATION_PENDING",
+  "workflow": ".github/workflows/validate-current-state-evaluation.yml",
+  "next_action": "inspect current main workflow run and replace this pending state with a success/failure receipt",
+  "authority_effect": false
+}
