@@ -1,0 +1,31 @@
+name: Validate Current State Evaluation
+
+on:
+  push:
+    paths:
+      - 'contracts/executive-rhetoric-ledger-reviewed-projection.contract.yml'
+      - 'data/receipts/ledger_evidence_updates.jsonl'
+      - 'data/receipts/ledger_current_state_evaluation.json'
+      - 'scripts/validate_current_state_evaluation.py'
+      - '.github/workflows/validate-current-state-evaluation.yml'
+  pull_request:
+    paths:
+      - 'contracts/executive-rhetoric-ledger-reviewed-projection.contract.yml'
+      - 'data/receipts/ledger_evidence_updates.jsonl'
+      - 'data/receipts/ledger_current_state_evaluation.json'
+      - 'scripts/validate_current_state_evaluation.py'
+      - '.github/workflows/validate-current-state-evaluation.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python scripts/validate_current_state_evaluation.py
