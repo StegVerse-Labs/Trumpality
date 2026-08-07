@@ -1,0 +1,18 @@
+{
+  "schema": "stegverse.trumpality.current_state_evaluation.v1",
+  "subject_id": "donald-trump",
+  "as_of": "2026-08-07T15:44:00Z",
+  "evaluation_authority": "StegVerse-Labs/Executive_Rhetoric_Ledger",
+  "standard": "StegVerse-Labs/Executive_Rhetoric_Ledger/standards/person-event-current-state-evaluation.v1.md",
+  "source_projection": "data/receipts/ledger_reviewed_projections/PERSON-PROJECTION-52A448F378F954A10E3F.json",
+  "evidence_movement_ledger": "data/receipts/ledger_evidence_updates.jsonl",
+  "state": "INITIALIZED_FROM_REVIEWED_PROJECTION",
+  "review_state": "reviewed_projection_imported",
+  "dpoi_states": [],
+  "inference_ceiling": "This repository records reviewed ERL projections and local subject-specific context; it does not independently establish factual truth, culpability, causation, coordination, or motive.",
+  "native_records_mutated": false,
+  "verification_labels_changed": false,
+  "authority_effect": false,
+  "publication_effect": false,
+  "next_update_rule": "Every newly imported reviewed ERL evidence/current-state change must append a ledger event before or with this index update; zero-result discovery remains no-update unless coverage-completeness evidence makes absence probative."
+}
