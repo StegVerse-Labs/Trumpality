@@ -1,18 +1,35 @@
-contract_version: 1
+contract_version: 2
 contract_id: trumpality.executive_rhetoric_ledger.reviewed_projection
 source_repo: StegVerse-Labs/Executive_Rhetoric_Ledger
 destination_repo: StegVerse-Labs/Trumpality
 input_schema: stegverse.executive_rhetoric_ledger.person_specific_projection.v1
 input_path: data/incoming/executive_rhetoric_ledger/reviewed-projection.json
+source_evaluation_standard: standards/person-event-current-state-evaluation.md
 storage:
   object_directory: data/receipts/ledger_reviewed_projections
   append_log: data/receipts/ledger_reviewed_projections.jsonl
   current_index: data/receipts/ledger_reviewed_projection_current.json
+  evidence_update_ledger: data/receipts/ledger_evidence_updates.jsonl
+  current_state_index: data/receipts/ledger_current_state_evaluation.json
 rules:
   - only explicitly related reviewed ledger entries may be imported
   - projection import never mutates native source records
   - projection import never changes native verification labels
-  - projection import never establishes culpability, causation, coordination, or factual truth beyond the ledger receipt scope
+  - projection import never establishes culpability, causation, coordination, motive, or factual truth beyond the ledger receipt scope
   - prior projections remain append-only and supersession must be explicit
   - source repository, destination repository, receipt path, receipt SHA-256, and projection SHA-256 must validate
   - delivery and acknowledgment remain distinct states
+  - every newly imported reviewed evidence object must be eligible to append an evidence-update ledger event
+  - evidence-update events preserve proposition-relative strengthen, weaken, disambiguate, contextualize, or no-update effects when supplied by ERL
+  - no-result discovery is not evidence against a proposition unless ERL supplies independent coverage-completeness authority
+  - local current-state projection must preserve ERL inference ceilings and OBSERVED, INFERRED, and UNRESOLVED distinctions
+  - local current-state projection is a governed consumer view and does not become independent evidence authority
+  - native Trumpality facts or labels may change only through an independent governed Trumpality process
+public_projection_requirements:
+  - expose current evidence state and as-of timestamp
+  - expose DPOI state matrix when present
+  - expose append-only evidence update ledger
+  - expose chronology and authority distinctions when present
+  - expose unresolved discriminators and evidence gaps
+  - link each state change to source or custody references
+  - explicitly show when new evidence causes no overall state change
