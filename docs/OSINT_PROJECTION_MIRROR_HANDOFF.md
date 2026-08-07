@@ -42,7 +42,7 @@ Every future reviewed ERL evidence/current-state import must append an Evidence 
 - first reviewed destination materialization: COMPLETE through repository-native consumer.
 - current-state evaluation baseline: COMPLETE and materialized.
 - Evidence Movement Ledger baseline: COMPLETE and materialized.
-- current-state validator/workflow: IMPLEMENTED; hosted validation receipt pending observation.
+- current-state validator/workflow: COMPLETE and hosted validation observed green.
 - PR #5: SUPERSEDED and closed because `main` already contains the same projection and destination receipt.
 - native Trumpality records and verification labels remain unchanged.
 
@@ -61,6 +61,8 @@ Every future reviewed ERL evidence/current-state import must append an Evidence 
 - current-state index baseline commit: `810d47a2bf1cca0a8d15886b26c03e5153100518`.
 - current-state validator commit: `830abbb3941a5cd74dc4111d72a40b315973b52a`.
 - validation workflow commit: `af07bf8567609e372775ef2be32f64a83b3ba12d`.
+- hosted `Validate Current State Evaluation` run `31194156570`: SUCCESS on `main`.
+- hosted `Test Readiness` run `31194714101`: SUCCESS on `main`.
 - PR #5 closed as superseded by repository-native consumer state.
 
 ## Automation
@@ -77,7 +79,7 @@ Authority: observation/import only; no factual truth, culpability, publication, 
 
 - source owner: `StegVerse-Labs/Executive_Rhetoric_Ledger/docs/OSINT_SESSION_CONSOLIDATION_MIRROR_HANDOFF.md`
 - source evaluation standard: `StegVerse-Labs/Executive_Rhetoric_Ledger/standards/person-event-current-state-evaluation.v1.md`
-- source conformance registry: `StegVerse-Labs/Executive_Rhetoric_Ledger/coordination/person-event-evaluation-registry.json`
+- source conformance registry: `StegVerse-Labs/Executive_Rhetoric_Ledger/coordination/person-event-evaluation-registry.v1.json`
 - source projection: `StegVerse-Labs/Executive_Rhetoric_Ledger/person_specific_projections/trumpality.json`
 - session inventory: `StegVerse-Labs/Executive_Rhetoric_Ledger/docs/OSINT_SESSION_EXECUTION_INVENTORY.md`
 
@@ -89,12 +91,12 @@ The person-specific projection goal and current-state evaluation normalization a
 
 ## Archive conditions
 
-Satisfied for the normalization session once the new hosted current-state validation workflow is observed green. Future projections remain machine-owned by the scheduled consumer and governed by the same reviewed-only contract.
+SATISFIED. The hosted current-state validation and repository readiness workflows are green, the canonical ERL registry reference is the V1 path, the scheduled consumer owns future reviewed projection movement, and no normalization-session implementation claim remains.
 
 ## Completion accounting
 
-- developed-files: 9/9
-- validation: 4/5 pending hosted current-state workflow observation
-- integration: 5/5
-- goal-activation: 90% pending hosted validator observation
+- developed-files: 9/9 = 100%
+- validation: 5/5 = 100%
+- integration: 5/5 = 100%
+- goal-activation: 100%
 - session-consolidation: 3/3 Trumpality goals transferred or complete
