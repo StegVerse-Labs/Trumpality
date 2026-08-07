@@ -1,0 +1,16 @@
+{
+  "schema": "stegverse.trumpality.current_state_evaluation_activation_receipt.v1",
+  "activated_at": "2026-08-07T15:48:00Z",
+  "canonical_standard": "StegVerse-Labs/Executive_Rhetoric_Ledger/standards/person-event-current-state-evaluation.v1.md",
+  "contract": "contracts/executive-rhetoric-ledger-reviewed-projection.contract.yml",
+  "evidence_movement_ledger": "data/receipts/ledger_evidence_updates.jsonl",
+  "current_state_index": "data/receipts/ledger_current_state_evaluation.json",
+  "validator": "scripts/validate_current_state_evaluation.py",
+  "workflow": ".github/workflows/validate-current-state-evaluation.yml",
+  "new_data_rule": "Every newly imported reviewed ERL evidence/current-state change appends a directional evidence-movement event before or with current-state refresh.",
+  "native_records_mutated": false,
+  "verification_labels_changed": false,
+  "evaluation_authority": "StegVerse-Labs/Executive_Rhetoric_Ledger",
+  "authority_effect": false,
+  "publication_effect": false
+}
