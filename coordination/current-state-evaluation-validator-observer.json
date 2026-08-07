@@ -1,0 +1,8 @@
+{
+  "schema": "stegverse.trumpality.current_state_evaluation_validator_observer.v1",
+  "state": "MACHINE_OWNED",
+  "workflow": ".github/workflows/validate-current-state-evaluation.yml",
+  "success_condition": "latest main run completes success",
+  "failure_condition": "latest main run completes non-success and creates or retains a repair task",
+  "authority_effect": false
+}
