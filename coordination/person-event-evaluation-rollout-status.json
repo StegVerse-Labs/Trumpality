@@ -1,0 +1,16 @@
+{
+  "schema": "stegverse.trumpality.person_event_evaluation_rollout_status.v1",
+  "as_of": "2026-08-07T15:49:00Z",
+  "state": "CONFORMING_IMPLEMENTED_AWAITING_HOSTED_VALIDATION_OBSERVATION",
+  "canonical_standard": "StegVerse-Labs/Executive_Rhetoric_Ledger/standards/person-event-current-state-evaluation.v1.md",
+  "contract_commit": "ce8c0a0d09ab7c5651fffb24238fab4fb67d9133",
+  "ledger_commit": "c64835e023de1bb0cf8e5f6329158490ba22d073",
+  "current_state_commit": "810d47a2bf1cca0a8d15886b26c03e5153100518",
+  "validator_commit": "830abbb3941a5cd74dc4111d72a40b315973b52a",
+  "workflow_commit": "af07bf8567609e372775ef2be32f64a83b3ba12d",
+  "handoff_commit": "28beeae63fcdaf47d3110460eefd055241106181",
+  "activation_receipt_commit": "13511137c062af6c69ccfdf1a4bee689a02d9e4f",
+  "consumer_handoff_commit": "5c83ac593e1dd916fed0c9d79a151d9b53c8fa98",
+  "authority_effect": false,
+  "publication_effect": false
+}
