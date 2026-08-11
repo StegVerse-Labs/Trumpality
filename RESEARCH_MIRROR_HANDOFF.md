@@ -13,9 +13,10 @@ Scope: ERL multi-trajectory research acquisition extension only. This handoff do
 - github_token_authority: NONE
 
 ## Claim
-- state: CLAIMED_FOR_VALIDATION
-- release_condition: deterministic populated fixture + ERL intake validation + registry promotion
-- collision_boundary: do not mutate native Trumpality verification/current-state records or bypass reviewed ERL projection authority
+- state: COMPLETE / VALIDATION CLAIM RELEASED
+- released_at: 2026-08-11T18:10:00Z
+- release_evidence: `research/receipts/2026-08-11-populated-adapter-and-intake-validation.json`
+- collision_boundary: native Trumpality verification/current-state records and reviewed ERL projection authority remain unchanged
 
 ## Authoritative research surfaces
 - native `scripts/search_agent.py`
@@ -26,6 +27,7 @@ Scope: ERL multi-trajectory research acquisition extension only. This handoff do
 - `research/research_receipts.jsonl`
 - `research/conformance.json`
 - `scripts/erl_research_agent.py`
+- `tests/test_erl_research_adapter_deterministic.py`
 - reviewed projection authority: `docs/OSINT_PROJECTION_MIRROR_HANDOFF.md`
 - upstream research standard: `StegVerse-Labs/Executive_Rhetoric_Ledger/standards/multi-trajectory-research-surface.v1.md`
 - upstream candidate transport: `StegVerse-Labs/Executive_Rhetoric_Ledger/contracts/research-candidate-transport.v1.md`
@@ -33,30 +35,25 @@ Scope: ERL multi-trajectory research acquisition extension only. This handoff do
 ## Research posture
 - recurrence: REQUIRED for active/future-changing Trump-specific trajectories;
 - native OSINT and ingest remain subject-local acquisition surfaces;
-- ERL sidecar searches all applicable trajectories, including contradictory/null/new trajectories;
+- ERL sidecar searches applicable ACTIVE trajectories, preserves potentially supporting/contrary/contextual/null candidates, and does not promote conclusions;
 - sidecar output remains lead-only/context-only and has no factual or evaluation authority.
 
-## Evidence
-- conformance profile: `0f8d3e777df69de15b40275054573a0eed80406e`
+## Validation evidence
 - ERL adapter candidate-transport alignment: `bb33dd3ff241152fcbde9f7ec30f365e1c0513b6`
+- deterministic fixture: `5dab9a519355a61cfee2ceeb1af52687f2a790fc`
+- populated adapter + ERL intake receipt: `b4d13f8044df39a1d8a6091acf15b4844a8a40a1`
+- conformance promotion: `9f21ddf034ef1c424128a76697e9ddd4e7db576a`
 - prior reviewed projection/current-state implementation remains complete under `docs/OSINT_PROJECTION_MIRROR_HANDOFF.md`.
 
-The ERL adapter now emits `stegverse.erl.research_source_candidate.v1`, records no native/evaluation mutation, targets ERL with authority effect NONE, preserves TV/TVC credential authority, and records GitHub token authority NONE.
+Validated: ACTIVE searched, SATURATED excluded, supporting/contrary leads preserved, null result preserved, duplicate link collapsed, ERL intake PASS, native Trumpality sentinel unchanged, native/evaluation mutation false, TV/TVC credential authority, GitHub token authority NONE, authority effect NONE.
 
-## Remaining
-1. deterministic populated multi-trajectory fixture;
-2. ERL candidate intake validation;
-3. verify no native/current-state mutation;
-4. registry promotion to CONFORMING.
-
-## Validation
-- `python scripts/erl_research_agent.py --base . --dry-run`
-- `python <ERL>/scripts/validate_research_surface.py .`
-- `python <ERL>/scripts/validate_research_candidate_intake.py research/source_candidates.jsonl`
+## Integration
+- central ERL registry promotion is the remaining cross-repository integration write
+- only reviewed ERL projections may alter governed Trumpality current-state evaluation material
 
 ## Completion accounting
-- research-extension developed-files: 7/7 = 100%
+- research-extension developed-files: 9/9 = 100%
 - scaffolding/stubs: 0
-- validation: 0/3
-- integration: 2/3
-- goal-activation: 75%
+- validation: 3/3
+- integration: 2/3 until central registry promotion
+- goal-activation: 95%
