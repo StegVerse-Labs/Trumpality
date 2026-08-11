@@ -1,0 +1,28 @@
+{
+  "schema": "stegverse.erl.research_conformance.v1",
+  "repository": "StegVerse-Labs/Trumpality",
+  "role": "subject-acquisition-surface-with-native-osint",
+  "canonical_owner": "StegVerse-Labs/Executive_Rhetoric_Ledger#60",
+  "evaluation_authority": "StegVerse-Labs/Executive_Rhetoric_Ledger",
+  "acquisition_authority": "native Trumpality OSINT plus ERL trajectory adapter",
+  "adapter": "scripts/erl_research_agent.py",
+  "frontier": "research/frontier.json",
+  "recurrence": {
+    "classification": "REQUIRED",
+    "owner": "StegVerse-Labs/Trumpality",
+    "cadence_default": "weekly",
+    "basis": "active public figure, current-state projections, changing public records, and recurring native OSINT",
+    "stop_condition": "all relevant trajectories SATURATED/SUPERSEDED or recurrence explicitly DELEGATED"
+  },
+  "scheduled_ingest": {
+    "classification": "mixed",
+    "paths": [".github/workflows/weekly-ingest.yml", ".github/workflows/archive-and-monitor.yml", "scripts/search_agent.py"],
+    "note": "Native OSINT/search remains subject-specific acquisition; ERL adapter supplies trajectory-scoped candidate boundary."
+  },
+  "candidate_posture": "lead-only/context-only until ERL review",
+  "native_records_mutation_by_erl_sidecar": false,
+  "github_token_authority": "NONE",
+  "credential_authority": "TV/TVC where applicable",
+  "validation_state": "PENDING_VALIDATION",
+  "next_action": "run deterministic multi-trajectory fixture, validate no-native-mutation behavior and ERL intake/transport, then promote registry to CONFORMING"
+}
