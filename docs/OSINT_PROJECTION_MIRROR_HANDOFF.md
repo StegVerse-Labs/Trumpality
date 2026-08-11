@@ -86,6 +86,7 @@ Installed on `main`:
 - `research/acquisition_requests.jsonl`
 - `research/source_candidates.jsonl`
 - `research/research_receipts.jsonl`
+- `research/conformance.json`
 - `scripts/erl_research_agent.py`
 
 Research authority split:
@@ -95,6 +96,13 @@ Research authority split:
 - Contradictory, null, mixed, and newly discovered trajectories must be preserved.
 - Candidate output remains `lead-only`/`context-only` until ERL review and does not mutate native Trumpality verification or current-state labels.
 - GitHub token authority: NONE. TV/TVC governs credentials where applicable.
+
+Research recurrence posture:
+- recurrence: REQUIRED while Trump-related OPEN/ACTIVE trajectories or current-state projections can be changed by later public evidence.
+- default cadence: weekly, increased for high-volatility trajectories or made event-driven when an authoritative trigger exists.
+- existing `.github/workflows/weekly-ingest.yml`, archive/monitor workflow, and native `scripts/search_agent.py` are classified as a mixed native research/ingest surface.
+- recurrence belongs to trajectory/evidence gaps, not merely to the repository schedule.
+- conformance profile installed at `research/conformance.json` in commit `0f8d3e777df69de15b40275054573a0eed80406e`.
 
 Current claim: `CLAIMED_FOR_INTEGRATION` until the trajectory adapter is locally executed against deterministic fixtures and the ERL research-surface registry records the validated state. The prior projection-normalization claim remains released and complete.
 
@@ -122,8 +130,8 @@ The original normalization session conditions remain SATISFIED. The new research
 - projection/evaluation developed-files: 9/9 = 100%
 - projection/evaluation validation: 5/5 = 100%
 - projection/evaluation integration: 5/5 = 100%
-- research-surface developed-files: 6/6 = 100%
+- research-surface developed-files: 7/7 = 100%
 - research-surface validation: 0/3 pending deterministic execution
 - research-surface integration: 1/2 pending ERL registry promotion
-- research-surface goal-activation: 65%
+- research-surface goal-activation: 68%
 - session-consolidation: original 3/3 goals complete; research-surface extension remains active
