@@ -1,0 +1,10 @@
+{
+  "schema":"stegverse.erl.research_surface_validation_receipt.v1",
+  "repository":"StegVerse-Labs/Trumpality",
+  "adapter_commit":"bb33dd3ff241152fcbde9f7ec30f365e1c0513b6",
+  "test_fixture_commit":"5dab9a519355a61cfee2ceeb1af52687f2a790fc",
+  "validation_type":"local_deterministic_contract_harness_plus_committed_reproducible_fixture",
+  "assertions":{"active_trajectory_requests":1,"saturated_trajectory_requests":0,"candidate_count":2,"receipt_count":2,"supporting_candidate_preserved":true,"contrary_candidate_preserved":true,"null_result_preserved":true,"duplicate_matching_link_collapsed":true,"candidate_intake_validator":"PASS","native_state_unchanged":true,"credential_authority":"TV/TVC","github_token_authority":"NONE","authority_effect":"NONE","native_records_mutated":false,"evaluation_changed":false},
+  "result":"PASS",
+  "promotion_effect":"eligible for ERL registry CONFORMING promotion; local evaluation authority remains NONE"
+}
