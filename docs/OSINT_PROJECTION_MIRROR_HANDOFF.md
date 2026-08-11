@@ -75,11 +75,35 @@ Duplicate prevention: projection hash and destination identity.
 Failure posture: missing source, hash mismatch, wrong destination, unreviewed status, authority escalation, native-record mutation, invalid directional state, or missing evidence-movement/current-state materialization produces BLOCKED/FAILED and no governed state promotion.
 Authority: observation/import only; no factual truth, culpability, publication, endorsement, delivery, acknowledgment, or final-classification authority.
 
+## Multi-trajectory research surface — active extension
+
+Canonical task: `StegVerse-Labs/Executive_Rhetoric_Ledger#60`.
+Upstream standard: `StegVerse-Labs/Executive_Rhetoric_Ledger/standards/multi-trajectory-research-surface.v1.md`.
+
+Installed on `main`:
+- `research/README.md`
+- `research/frontier.json`
+- `research/acquisition_requests.jsonl`
+- `research/source_candidates.jsonl`
+- `research/research_receipts.jsonl`
+- `scripts/erl_research_agent.py`
+
+Research authority split:
+- Trumpality owns Trump-specific public-source discovery and native subject context.
+- ERL owns trajectory enumeration/expansion, custody/evaluation posture, graph enrichment, contradiction review, evidence movement, and governed conclusions.
+- Every ACTIVE trajectory may generate acquisition work. Research is explicitly not a binary support/refute process.
+- Contradictory, null, mixed, and newly discovered trajectories must be preserved.
+- Candidate output remains `lead-only`/`context-only` until ERL review and does not mutate native Trumpality verification or current-state labels.
+- GitHub token authority: NONE. TV/TVC governs credentials where applicable.
+
+Current claim: `CLAIMED_FOR_INTEGRATION` until the trajectory adapter is locally executed against deterministic fixtures and the ERL research-surface registry records the validated state. The prior projection-normalization claim remains released and complete.
+
 ## Cross-repository dependencies
 
 - source owner: `StegVerse-Labs/Executive_Rhetoric_Ledger/docs/OSINT_SESSION_CONSOLIDATION_MIRROR_HANDOFF.md`
 - source evaluation standard: `StegVerse-Labs/Executive_Rhetoric_Ledger/standards/person-event-current-state-evaluation.v1.md`
 - source conformance registry: `StegVerse-Labs/Executive_Rhetoric_Ledger/coordination/person-event-evaluation-registry.v1.json`
+- research-surface registry: `StegVerse-Labs/Executive_Rhetoric_Ledger/coordination/research-surface-registry.v1.json`
 - source projection: `StegVerse-Labs/Executive_Rhetoric_Ledger/person_specific_projections/trumpality.json`
 - session inventory: `StegVerse-Labs/Executive_Rhetoric_Ledger/docs/OSINT_SESSION_EXECUTION_INVENTORY.md`
 
@@ -87,16 +111,19 @@ Authority: observation/import only; no factual truth, culpability, publication, 
 
 MERGED INTO: `StegVerse-Labs/Trumpality/docs/OSINT_PROJECTION_MIRROR_HANDOFF.md`.
 
-The person-specific projection goal and current-state evaluation normalization are durably transferred. Future projection/evidence movements remain machine-owned by the scheduled consumer.
+The person-specific projection goal and current-state evaluation normalization are durably transferred. Future projection/evidence movements remain machine-owned by the scheduled consumer. The new research-surface integration remains a distinct active extension under ERL Issue #60.
 
 ## Archive conditions
 
-SATISFIED. The hosted current-state validation and repository readiness workflows are green, the canonical ERL registry reference is the V1 path, the scheduled consumer owns future reviewed projection movement, and no normalization-session implementation claim remains.
+The original normalization session conditions remain SATISFIED. The new research-surface extension is not complete until deterministic adapter validation and ERL registry promotion are recorded.
 
 ## Completion accounting
 
-- developed-files: 9/9 = 100%
-- validation: 5/5 = 100%
-- integration: 5/5 = 100%
-- goal-activation: 100%
-- session-consolidation: 3/3 Trumpality goals transferred or complete
+- projection/evaluation developed-files: 9/9 = 100%
+- projection/evaluation validation: 5/5 = 100%
+- projection/evaluation integration: 5/5 = 100%
+- research-surface developed-files: 6/6 = 100%
+- research-surface validation: 0/3 pending deterministic execution
+- research-surface integration: 1/2 pending ERL registry promotion
+- research-surface goal-activation: 65%
+- session-consolidation: original 3/3 goals complete; research-surface extension remains active
