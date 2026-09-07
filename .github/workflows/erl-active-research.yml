@@ -1,0 +1,97 @@
+name: ERL Active Research Acquisition
+
+on:
+  schedule:
+    - cron: '5 */6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: erl-active-research
+  cancel-in-progress: false
+
+jobs:
+  acquire-sort-persist:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Validate research adapter
+        run: python tests/test_erl_research_adapter_deterministic.py
+
+      - name: Acquire new trajectory-scoped source candidates
+        run: python scripts/erl_research_agent.py
+
+      - name: Sort, deduplicate, and summarize current research data
+        run: |
+          python - <<'PY'
+          import json, pathlib, datetime
+          root=pathlib.Path('research')
+          def load_jsonl(p):
+              if not p.exists(): return []
+              out=[]
+              for line in p.read_text(encoding='utf-8').splitlines():
+                  if line.strip(): out.append(json.loads(line))
+              return out
+          def write_jsonl(p,rows):
+              p.write_text(''.join(json.dumps(r,sort_keys=True)+'\n' for r in rows),encoding='utf-8')
+          candidates=load_jsonl(root/'source_candidates.jsonl')
+          receipts=load_jsonl(root/'research_receipts.jsonl')
+          by_candidate={r.get('candidate_id') or json.dumps(r,sort_keys=True):r for r in candidates}
+          by_receipt={r.get('receipt_id') or json.dumps(r,sort_keys=True):r for r in receipts}
+          candidates=list(by_candidate.values()); receipts=list(by_receipt.values())
+          candidates.sort(key=lambda r:(tuple(r.get('trajectory_ids',[])),r.get('source_class',''),r.get('source_url','')))
+          receipts.sort(key=lambda r:(r.get('request_id',''),r.get('source_scanned',''),r.get('retrieved_at','')))
+          write_jsonl(root/'source_candidates.jsonl',candidates)
+          write_jsonl(root/'research_receipts.jsonl',receipts)
+          status_counts={}
+          for r in receipts:
+              status_counts[r.get('result','UNKNOWN')]=status_counts.get(r.get('result','UNKNOWN'),0)+1
+          trajectory_counts={}
+          for c in candidates:
+              for t in c.get('trajectory_ids',[]): trajectory_counts[t]=trajectory_counts.get(t,0)+1
+          state={
+            'schema':'stegverse.erl.active_research_state.v1',
+            'repository':'StegVerse-Labs/Trumpality',
+            'updated_at':datetime.datetime.now(datetime.timezone.utc).isoformat(),
+            'state':'ACTIVE_ACQUIRING',
+            'candidate_count':len(candidates),
+            'receipt_count':len(receipts),
+            'receipt_results':status_counts,
+            'trajectory_candidate_counts':trajectory_counts,
+            'sorting_actions':['deduplicate_candidate_id','deduplicate_receipt_id','sort_by_trajectory_source_url','summarize_result_states'],
+            'evaluation_authority_effect':'NONE'
+          }
+          (root/'active-research-state.json').write_text(json.dumps(state,indent=2,sort_keys=True)+'\n',encoding='utf-8')
+          print(json.dumps(state,sort_keys=True))
+          PY
+
+      - name: Persist acquisition and sorting receipts
+        run: |
+          git config user.name 'stegverse-research-bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add research/source_candidates.jsonl research/research_receipts.jsonl research/active-research-state.json
+          if git diff --cached --quiet; then
+            echo 'No semantic research-data change to persist.'
+          else
+            git commit -m 'research: persist active ERL acquisition cycle'
+            git push
+          fi
+
+      - name: Upload cycle artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: erl-active-research-${{ github.run_id }}
+          path: |
+            research/source_candidates.jsonl
+            research/research_receipts.jsonl
+            research/active-research-state.json
+          retention-days: 90
