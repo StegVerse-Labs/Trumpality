@@ -51,6 +51,16 @@ def main():
         assert all(x['repository']==REPOSITORY and x['native_records_mutated'] is False and x['evaluation_changed'] is False for x in c)
         assert all(x['transport']['credential_authority']=='TV/TVC' and x['transport']['github_token_authority']=='NONE' and x['transport']['authority_effect']=='NONE' for x in c)
         assert any(x['result']=='NO_UPDATE' and x['hits']==0 for x in r); assert any(x['result']=='CANDIDATES_IDENTIFIED' and x['hits']==2 for x in r)
+        # Repeated acquisition must preserve scan receipts but not duplicate candidate records.
+        before_candidates=(b/'research/source_candidates.jsonl').read_bytes()
+        before_receipts=(b/'research/research_receipts.jsonl').read_bytes()
+        with mock.patch.object(adapter.urllib.request,'urlopen',side_effect=fake), mock.patch.object(sys,'argv',[str(ADAPTER),'--base',str(b)]): adapter.main()
+        after_candidates=(b/'research/source_candidates.jsonl').read_bytes()
+        after_receipts=(b/'research/research_receipts.jsonl').read_bytes()
+        assert after_candidates==before_candidates, 'second cycle must not duplicate candidate records'
+        assert after_receipts.startswith(before_receipts), 'second cycle must preserve prior receipt bytes'
+        r2=read_jsonl(b/'research/research_receipts.jsonl')
+        assert len(r2)==4 and len({x['receipt_id'] for x in r2})==4, 'each cycle requires unique scan receipts'
         assert sha(sentinel)==before, 'ERL sidecar must not mutate native Trumpality state'
         print(json.dumps({'status':'PASS','repository':REPOSITORY,'active_trajectory_requests':1,'saturated_trajectory_requests':0,'candidates':2,'receipts':2,'supporting_and_contrary_leads_preserved':True,'null_result_preserved':True,'duplicate_links_collapsed':True,'native_state_unchanged':True,'github_token_authority':'NONE','credential_authority':'TV/TVC','authority_effect':'NONE'},sort_keys=True))
     return 0
