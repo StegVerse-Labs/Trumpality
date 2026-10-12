@@ -24,7 +24,7 @@ def main():
         assert len({r['request_id'] for r in requests})==len(requests)
         assert adapter.active(cb)==requests, 'frontier mapping must be deterministic'
         with (cb/'research/acquisition_requests.jsonl').open('w',encoding='utf-8') as out:
-            out.write(json.dumps(requests[0])+'\\n')
+            out.write(json.dumps(requests[0])+'\n')
         assert len(adapter.active(cb))==len(requests), 'duplicate persisted request must collapse'
     with tempfile.TemporaryDirectory() as missing_dir:
         mb=pathlib.Path(missing_dir); (mb/'research').mkdir()
