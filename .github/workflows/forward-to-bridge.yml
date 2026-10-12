@@ -13,8 +13,11 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GH_STEGVERSE_AI_TOKEN }}
         run: |
-          echo "${GH_TOKEN}" | gh auth login --with-token
-          gh api repos/StegVerse/hybrid-collab-bridge/dispatches \
+          if [ -z "${GH_TOKEN}" ]; then
+            echo "::error::GH_STEGVERSE_AI_TOKEN is unavailable; bridge dispatch denied"
+            exit 1
+          fi
+          gh api repos/StegVerse-Labs/hybrid-collab-bridge/dispatches \
             -X POST \
             -F event_type="stegverse-ai-review" \
             -F client_payload="{\"target_repo\":\"${GITHUB_REPOSITORY}\",\"pr_number\":${{ github.event.pull_request.number }}}"
