@@ -27,6 +27,9 @@ jobs:
       - name: Validate research adapter
         run: python tests/test_erl_research_adapter_deterministic.py
 
+      - name: Record pre-cycle receipt count
+        run: echo "PRE_CYCLE_RECEIPTS=$(grep -c . research/research_receipts.jsonl || true)" >> "$GITHUB_ENV"
+
       - name: Acquire new trajectory-scoped source candidates
         run: python scripts/erl_research_agent.py
 
@@ -39,9 +42,12 @@ jobs:
           requests=active(base)
           path=base/'research/research_receipts.jsonl'
           receipts=[json.loads(line) for line in path.read_text(encoding='utf-8').splitlines() if line.strip()] if path.exists() else []
-          if requests and not receipts:
-              raise SystemExit('FAIL_CLOSED: active research has no persisted source-scan receipts')
-          print(json.dumps({'active_requests':len(requests),'persisted_scan_receipts':len(receipts)}))
+          import os
+          before=int(os.environ.get('PRE_CYCLE_RECEIPTS') or 0)
+          # Pre-existing receipts must not satisfy this cycle; require fresh appended receipts.
+          if requests and len(receipts)<=before:
+              raise SystemExit('FAIL_CLOSED: this cycle appended no source-scan receipts')
+          print(json.dumps({'active_requests':len(requests),'pre_cycle_receipts':before,'persisted_scan_receipts':len(receipts),'cycle_receipts':len(receipts)-before}))
           PY
 
       - name: Summarize append-only research data without rewriting history
