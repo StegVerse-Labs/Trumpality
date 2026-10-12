@@ -36,6 +36,14 @@ def main():
                 assert 'FAIL_CLOSED' in str(exc) and 'source inventory' in str(exc)
             else:
                 raise AssertionError('Missing source inventory must fail closed')
+    with tempfile.TemporaryDirectory() as invalid_dir:
+        ib=pathlib.Path(invalid_dir); (ib/'research').mkdir(); (ib/'data/sources').mkdir(parents=True)
+        (ib/'research/frontier.json').write_text(json.dumps({'trajectories':[{'id':'T1','state':'ACTIVE','required_evidence':['public record']}]}))
+        (ib/'data/sources/sources_whitelist.csv').write_text('name,url,authority_class\\ninvalid,not-a-web-address,official\\n')
+        with mock.patch.object(sys,'argv',[str(ADAPTER),'--base',str(ib)]):
+            try: adapter.main()
+            except RuntimeError as exc: assert 'FAIL_CLOSED' in str(exc) and 'usable HTTP(S)' in str(exc)
+            else: raise AssertionError('Unusable source inventory must fail closed')
     with tempfile.TemporaryDirectory() as td:
         b=pathlib.Path(td); (b/'research').mkdir(parents=True); (b/'data/sources').mkdir(parents=True); (b/'data/native').mkdir(parents=True)
         sentinel=b/'data/native/sentinel.json'; sentinel.write_text('{"native":"unchanged"}',encoding='utf-8'); before=sha(sentinel)
