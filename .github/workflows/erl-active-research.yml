@@ -30,6 +30,20 @@ jobs:
       - name: Acquire new trajectory-scoped source candidates
         run: python scripts/erl_research_agent.py
 
+      - name: Verify source scan evidence exists for active research
+        run: |
+          python - <<'PY'
+          import json,pathlib
+          from scripts.erl_research_agent import active
+          base=pathlib.Path('.')
+          requests=active(base)
+          path=base/'research/research_receipts.jsonl'
+          receipts=[json.loads(line) for line in path.read_text(encoding='utf-8').splitlines() if line.strip()] if path.exists() else []
+          if requests and not receipts:
+              raise SystemExit('FAIL_CLOSED: active research has no persisted source-scan receipts')
+          print(json.dumps({'active_requests':len(requests),'persisted_scan_receipts':len(receipts)}))
+          PY
+
       - name: Summarize append-only research data without rewriting history
         run: |
           python - <<'PY'
