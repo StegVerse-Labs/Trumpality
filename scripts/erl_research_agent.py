@@ -55,6 +55,8 @@ def active(base):
 def packet(req,src,title,link):return {'schema':'stegverse.erl.research_source_candidate.v1','candidate_id':'SRC-'+sid(req.get('request_id'),link),'repository':REPOSITORY,'trajectory_ids':req.get('trajectory_ids',[]),'acquisition_request_id':req.get('request_id'),'query':req.get('query',''),'source_url':link,'source_title':title,'retrieved_at':now(),'source_class':src.get('authority_class') or src.get('type') or 'unknown','authority_proximity':'unknown','content_sha256':None,'custody_pointer':None,'verification_state':'UNVERIFIED','evidence_role':'lead-only','native_records_mutated':False,'evaluation_changed':False,'discovered_by':'scripts/erl_research_agent.py','transport':{'source_repository':REPOSITORY,'destination_repository':'StegVerse-Labs/Executive_Rhetoric_Ledger','authority_effect':'NONE','credential_authority':'TV/TVC','github_token_authority':'NONE'}}
 def main():
     p=argparse.ArgumentParser();p.add_argument('--base',default='.');p.add_argument('--dry-run',action='store_true');a=p.parse_args();b=pathlib.Path(a.base).resolve();R=active(b);S=sources(b/'data/sources/sources_whitelist.csv');count=0;seen=set()
+    if R and not S:
+        raise RuntimeError('FAIL_CLOSED: source inventory missing or empty; acquisition not executed')
     for req in R:
         terms=[x.lower() for x in re.findall(r'[A-Za-z0-9][A-Za-z0-9._-]{2,}',req.get('query',''))][:12]
         for src in S:
