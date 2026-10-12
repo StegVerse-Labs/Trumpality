@@ -50,7 +50,7 @@ def main():
         assert len(c)==2 and len(r)==2; assert {x['source_title'] for x in c}=={'alpha beta supporting record','alpha beta contrary record'}
         assert all(x['repository']==REPOSITORY and x['native_records_mutated'] is False and x['evaluation_changed'] is False for x in c)
         assert all(x['transport']['credential_authority']=='TV/TVC' and x['transport']['github_token_authority']=='NONE' and x['transport']['authority_effect']=='NONE' for x in c)
-        assert any(x['result']=='NO_UPDATE' and x['hits']==0 for x in r); assert any(x['result']=='CANDIDATES_EMITTED' and x['hits']==2 for x in r)
+        assert any(x['result']=='NO_UPDATE' and x['hits']==0 for x in r); assert any(x['result']=='CANDIDATES_IDENTIFIED' and x['hits']==2 for x in r)
         assert sha(sentinel)==before, 'ERL sidecar must not mutate native Trumpality state'
         print(json.dumps({'status':'PASS','repository':REPOSITORY,'active_trajectory_requests':1,'saturated_trajectory_requests':0,'candidates':2,'receipts':2,'supporting_and_contrary_leads_preserved':True,'null_result_preserved':True,'duplicate_links_collapsed':True,'native_state_unchanged':True,'github_token_authority':'NONE','credential_authority':'TV/TVC','authority_effect':'NONE'},sort_keys=True))
     return 0
