@@ -62,6 +62,7 @@ def main():
     # Keep scan evidence per cycle even when the same source body is retrieved again.
     cycle_id=sid(now(),len(jsonl(b/'research/research_receipts.jsonl')))
     existing_candidates={r.get('candidate_id') for r in jsonl(b/'research/source_candidates.jsonl')}
+    successful_scans=0
     for req in R:
         terms=[x.lower() for x in re.findall(r'[A-Za-z0-9][A-Za-z0-9._-]{2,}',req.get('query',''))][:12]
         for src in S:
@@ -81,7 +82,10 @@ def main():
                     append(b/'research/source_candidates.jsonl',candidate,a.dry_run)
                     existing_candidates.add(candidate['candidate_id'])
                     count+=1
+                successful_scans+=1
                 append(b/'research/research_receipts.jsonl',{'receipt_id':'RSRCH-'+sid(cycle_id,req.get('request_id'),u,digest),'request_id':req.get('request_id'),'trajectory_ids':req.get('trajectory_ids',[]),'source_scanned':u,'retrieved_at':now(),'response_hash':digest,'hits':len(hits),'result':'NO_UPDATE' if not hits else 'CANDIDATES_IDENTIFIED','native_records_mutated':False,'evaluation_changed':False},a.dry_run)
             except Exception as e:append(b/'research/research_receipts.jsonl',{'receipt_id':'RSRCH-'+sid(cycle_id,req.get('request_id'),u,now()),'request_id':req.get('request_id'),'trajectory_ids':req.get('trajectory_ids',[]),'source_scanned':u,'retrieved_at':now(),'result':'FAILED','error':type(e).__name__,'native_records_mutated':False,'evaluation_changed':False},a.dry_run)
+    if R and successful_scans==0:
+        raise RuntimeError('FAIL_CLOSED: all configured source scans failed; inspect appended FAILED receipts')
     print(json.dumps({'repository':REPOSITORY,'requests':len(R),'sources':len(S),'candidates':count,'dry_run':a.dry_run,'native_records_mutated':False,'evaluation_changed':False,'candidate_schema':'stegverse.erl.research_source_candidate.v1','credential_authority':'TV/TVC','github_token_authority':'NONE'},sort_keys=True))
 if __name__=='__main__':main()
