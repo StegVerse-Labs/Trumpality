@@ -19,5 +19,6 @@ jobs:
           fi
           gh api repos/StegVerse-Labs/hybrid-collab-bridge/dispatches \
             -X POST \
-            -F event_type="stegverse-ai-review" \
-            -F client_payload="{\"target_repo\":\"${GITHUB_REPOSITORY}\",\"pr_number\":${{ github.event.pull_request.number }}}"
+            -f event_type="stegverse-ai-review" \
+            -F client_payload[target_repo]="${GITHUB_REPOSITORY}" \
+            -F client_payload[pr_number]=${{ github.event.pull_request.number }}
