@@ -9,7 +9,7 @@ from __future__ import annotations
 import argparse,csv,hashlib,json,pathlib,re,urllib.request
 from datetime import datetime,timezone
 from html.parser import HTMLParser
-from urllib.parse import urljoin
+from urllib.parse import urljoin,urlsplit
 REPOSITORY='StegVerse-Labs/Trumpality';UA='StegVerse-ERL-Trumpality/1.1'
 def now():return datetime.now(timezone.utc).isoformat()
 def sid(*p):return hashlib.sha256('|'.join(map(str,p)).encode()).hexdigest()[:24]
@@ -57,6 +57,8 @@ def main():
     p=argparse.ArgumentParser();p.add_argument('--base',default='.');p.add_argument('--dry-run',action='store_true');a=p.parse_args();b=pathlib.Path(a.base).resolve();R=active(b);S=sources(b/'data/sources/sources_whitelist.csv');count=0;seen=set()
     if R and not S:
         raise RuntimeError('FAIL_CLOSED: source inventory missing or empty; acquisition not executed')
+    if R and not any(urlsplit((src.get('url') or '').strip()).scheme in {'http','https'} and urlsplit((src.get('url') or '').strip()).hostname for src in S):
+        raise RuntimeError('FAIL_CLOSED: source inventory has no usable HTTP(S) endpoint; acquisition not executed')
     # Keep scan evidence per cycle even when the same source body is retrieved again.
     cycle_id=sid(now(),len(jsonl(b/'research/research_receipts.jsonl')))
     existing_candidates={r.get('candidate_id') for r in jsonl(b/'research/source_candidates.jsonl')}
@@ -64,7 +66,7 @@ def main():
         terms=[x.lower() for x in re.findall(r'[A-Za-z0-9][A-Za-z0-9._-]{2,}',req.get('query',''))][:12]
         for src in S:
             u=(src.get('url') or '').strip()
-            if not u:continue
+            if not u or urlsplit(u).scheme not in {'http','https'} or not urlsplit(u).hostname:continue
             try:
                 r=urllib.request.urlopen(urllib.request.Request(u,headers={'User-Agent':UA}),timeout=15);data=r.read(2_000_000);digest=hashlib.sha256(data).hexdigest();parser=Links();parser.feed(data.decode('utf-8',errors='ignore'));hits=[]
                 for title,href in parser.links:
