@@ -30,7 +30,7 @@ jobs:
       - name: Acquire new trajectory-scoped source candidates
         run: python scripts/erl_research_agent.py
 
-      - name: Sort, deduplicate, and summarize current research data
+      - name: Summarize append-only research data without rewriting history
         run: |
           python - <<'PY'
           import json, pathlib, datetime
@@ -41,17 +41,9 @@ jobs:
               for line in p.read_text(encoding='utf-8').splitlines():
                   if line.strip(): out.append(json.loads(line))
               return out
-          def write_jsonl(p,rows):
-              p.write_text(''.join(json.dumps(r,sort_keys=True)+'\n' for r in rows),encoding='utf-8')
+          # Acquisition JSONL is append-only; never rewrite or deduplicate history.
           candidates=load_jsonl(root/'source_candidates.jsonl')
           receipts=load_jsonl(root/'research_receipts.jsonl')
-          by_candidate={r.get('candidate_id') or json.dumps(r,sort_keys=True):r for r in candidates}
-          by_receipt={r.get('receipt_id') or json.dumps(r,sort_keys=True):r for r in receipts}
-          candidates=list(by_candidate.values()); receipts=list(by_receipt.values())
-          candidates.sort(key=lambda r:(tuple(r.get('trajectory_ids',[])),r.get('source_class',''),r.get('source_url','')))
-          receipts.sort(key=lambda r:(r.get('request_id',''),r.get('source_scanned',''),r.get('retrieved_at','')))
-          write_jsonl(root/'source_candidates.jsonl',candidates)
-          write_jsonl(root/'research_receipts.jsonl',receipts)
           status_counts={}
           for r in receipts:
               status_counts[r.get('result','UNKNOWN')]=status_counts.get(r.get('result','UNKNOWN'),0)+1
@@ -62,12 +54,12 @@ jobs:
             'schema':'stegverse.erl.active_research_state.v1',
             'repository':'StegVerse-Labs/Trumpality',
             'updated_at':datetime.datetime.now(datetime.timezone.utc).isoformat(),
-            'state':'ACTIVE_ACQUIRING',
+            'state':'ACQUISITION_OBSERVED' if any(r.get('result')=='CANDIDATES_EMITTED' for r in receipts) else 'NO_CANDIDATE_EVIDENCE',
             'candidate_count':len(candidates),
             'receipt_count':len(receipts),
             'receipt_results':status_counts,
             'trajectory_candidate_counts':trajectory_counts,
-            'sorting_actions':['deduplicate_candidate_id','deduplicate_receipt_id','sort_by_trajectory_source_url','summarize_result_states'],
+            'sorting_actions':['read_only_summarize_result_states'],
             'evaluation_authority_effect':'NONE'
           }
           (root/'active-research-state.json').write_text(json.dumps(state,indent=2,sort_keys=True)+'\n',encoding='utf-8')
