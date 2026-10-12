@@ -6,11 +6,11 @@ labels are never mutated. Candidate packets conform to ERL transport v1; applica
 credential authority remains TV/TVC and GitHub token authority is NONE.
 """
 from __future__ import annotations
-import argparse,csv,hashlib,json,pathlib,re,urllib.request
+import argparse,csv,hashlib,json,pathlib,re,time,urllib.error,urllib.request
 from datetime import datetime,timezone
 from html.parser import HTMLParser
 from urllib.parse import urljoin,urlsplit
-REPOSITORY='StegVerse-Labs/Trumpality';UA='StegVerse-ERL-Trumpality/1.1'
+REPOSITORY='StegVerse-Labs/Trumpality';HOST_SPACING=3;RETRY_DELAY=10;UA='StegVerse-ERL-Trumpality/1.1'
 def now():return datetime.now(timezone.utc).isoformat()
 def sid(*p):return hashlib.sha256('|'.join(map(str,p)).encode()).hexdigest()[:24]
 def append(path,obj,dry):
@@ -48,7 +48,11 @@ def feed_links(data):
 GENERIC={'and','the','for','with','records','record','events','event','evidence','data','series','official','public','map','controls','control','observations','timestamps','timestamp','windows','window','measures','support','matched','periods','snapshots','white','house','treasury','sec'}
 def query_terms(q):
     return [t for t in dict.fromkeys(x.lower() for x in re.findall(r'[A-Za-z0-9][A-Za-z0-9._-]{2,}',q)) if t not in GENERIC][:12]
-def matches(terms,hay):
+def matches(terms,hay,subject=None):
+    if subject:
+        # A lead must name the trajectory's subject and touch the evidence sought.
+        evidence=[t for t in terms if t not in subject]
+        return any(re.search(r'(?<![a-z0-9])'+re.escape(s)+r'(?![a-z0-9])',hay) for s in subject) and (not evidence or any(t in hay for t in evidence))
     # Require two distinct terms when the query offers two, so one generic word cannot create a lead.
     return bool(terms) and sum(t in hay for t in terms)>=min(2,len(terms))
 def active(base):
@@ -67,7 +71,9 @@ def active(base):
         for q in queries:
             if not isinstance(q,str) or not q.strip():
                 raise ValueError('Invalid acquisition query for '+trajectory_id)
-            out.append({'request_id':'frontier-'+sid(trajectory_id,q),'trajectory_ids':[trajectory_id],'query':q,'state':'ACTIVE'})
+            req={'request_id':'frontier-'+sid(trajectory_id,q),'trajectory_ids':[trajectory_id],'query':q,'state':'ACTIVE'}
+            if t.get('subject_terms'):req['subject_terms']=[x.lower() for x in t['subject_terms']]
+            out.append(req)
     unique={}
     for r in out:
         if r.get('state','ACTIVE') in {'OPEN','ACTIVE','RETRY'}:
@@ -83,13 +89,21 @@ def main():
     # Keep scan evidence per cycle even when the same source body is retrieved again.
     cycle_id=sid(now(),len(jsonl(b/'research/research_receipts.jsonl')))
     existing_candidates={r.get('candidate_id') for r in jsonl(b/'research/source_candidates.jsonl')}
-    successful_scans=0;fetched={}
+    successful_scans=0;fetched={};last_hit={}
     for src in S:
         u=(src.get('url') or '').strip()
         if not u or urlsplit(u).scheme not in {'http','https'} or not urlsplit(u).hostname:continue
+        # Space requests to one host; back-to-back Federal Register queries are throttled.
+        host=urlsplit(u).hostname;wait=last_hit.get(host,0)+HOST_SPACING-time.monotonic()
+        if wait>0:time.sleep(wait)
+        last_hit[host]=time.monotonic()
         # One retrieval per source per cycle; every request is matched against the same bytes.
         try:
-            data=urllib.request.urlopen(urllib.request.Request(u,headers={'User-Agent':UA}),timeout=15).read(2_000_000)
+            try:data=urllib.request.urlopen(urllib.request.Request(u,headers={'User-Agent':UA}),timeout=15).read(2_000_000)
+            except urllib.error.HTTPError as e:
+                if e.code not in {403,429,500,502,503,504}:raise
+                # One spaced retry for throttling; a second failure is recorded as FAILED.
+                time.sleep(RETRY_DELAY);data=urllib.request.urlopen(urllib.request.Request(u,headers={'User-Agent':UA}),timeout=15).read(2_000_000)
             links=feed_links(data)
             if not links:parser=Links();parser.feed(data.decode('utf-8',errors='ignore'));links=parser.links
             fetched[u]=(hashlib.sha256(data).hexdigest(),links,None)
@@ -107,7 +121,7 @@ def main():
             for title,href in links:
                 link=urljoin(u,href)
                 # Match the title and URL path only; the source's own hostname is not evidence of relevance.
-                if not title or not matches(terms,(title+' '+urlsplit(link).path).lower()):continue
+                if not title or not matches(terms,(title+' '+urlsplit(link).path.replace('-',' ')).lower(),req.get('subject_terms')):continue
                 k=sid(link)
                 if (req.get('request_id'),k) in seen:continue
                 seen.add((req.get('request_id'),k));hits.append((title,link))
