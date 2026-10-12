@@ -80,6 +80,22 @@ def main():
         r2=read_jsonl(b/'research/research_receipts.jsonl')
         assert len(r2)==4 and len({x['receipt_id'] for x in r2})==4, 'each cycle requires unique scan receipts'
         assert sha(sentinel)==before, 'ERL sidecar must not mutate native Trumpality state'
+    with tempfile.TemporaryDirectory() as rd:
+        rb=pathlib.Path(rd); (rb/'research').mkdir(); (rb/'data/sources').mkdir(parents=True)
+        (rb/'research/frontier.json').write_text(json.dumps({'trajectories':[{'id':'T1','state':'ACTIVE','required_evidence':['stablecoin custody rules','announcement records']}]}))
+        (rb/'data/sources/sources_whitelist.csv').write_text('name,type,url,authority_class\nfeed,rss,https://fixture.local/feed.xml,official-register\n')
+        rss=b'<?xml version="1.0"?><rss><channel><item><title>Stablecoin custody rules adopted</title><link>https://fixture.local/doc/1</link></item><item><title>Unrelated notice</title><link>https://fixture.local/stablecoin-custody/2</link></item></channel></rss>'
+        calls=[]
+        def feed(request,timeout=15): calls.append(request.full_url); return FakeResponse(rss)
+        with mock.patch.object(adapter.urllib.request,'urlopen',side_effect=feed), mock.patch.object(sys,'argv',[str(ADAPTER),'--base',str(rb)]): adapter.main()
+        assert calls==['https://fixture.local/feed.xml'], 'each source must be fetched once per cycle regardless of request count'
+        rc=read_jsonl(rb/'research/source_candidates.jsonl'); rr=read_jsonl(rb/'research/research_receipts.jsonl')
+        assert [x['source_url'] for x in rc]==['https://fixture.local/doc/1','https://fixture.local/stablecoin-custody/2'], rc
+        assert all(x['listing_response_sha256']==hashlib.sha256(rss).hexdigest() for x in rc)
+        assert {x['custody_pointer'] for x in rc} <= {x['receipt_id'] for x in rr}, 'candidates must point at the scan receipt that produced them'
+        assert len(rr)==2 and {x['result'] for x in rr}=={'CANDIDATES_IDENTIFIED','NO_UPDATE'}, rr
+        assert adapter.query_terms('official SEC/Treasury/White House instruments')==['instruments'], 'source/institution names alone are not relevance evidence'
+        assert not adapter.matches(['custody','rules'],'treasury custody notice'), 'one generic overlap must not create a lead'
         print(json.dumps({'status':'PASS','repository':REPOSITORY,'active_trajectory_requests':1,'saturated_trajectory_requests':0,'candidates':2,'receipts':2,'supporting_and_contrary_leads_preserved':True,'null_result_preserved':True,'duplicate_links_collapsed':True,'native_state_unchanged':True,'github_token_authority':'NONE','credential_authority':'TV/TVC','authority_effect':'NONE'},sort_keys=True))
     return 0
 if __name__=='__main__': raise SystemExit(main())
