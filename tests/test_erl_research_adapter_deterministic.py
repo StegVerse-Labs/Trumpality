@@ -12,6 +12,20 @@ def read_jsonl(path): return [json.loads(x) for x in path.read_text(encoding='ut
 def sha(path): return hashlib.sha256(path.read_bytes()).hexdigest()
 def main():
     adapter=load_adapter()
+    canonical=json.loads((ROOT/'research/frontier.json').read_text(encoding='utf-8'))
+    assert len([t for t in canonical['trajectories'] if t['state']=='ACTIVE'])==12
+    with tempfile.TemporaryDirectory() as canonical_dir:
+        cb=pathlib.Path(canonical_dir); (cb/'research').mkdir()
+        (cb/'research/frontier.json').write_text(json.dumps(canonical),encoding='utf-8')
+        requests=adapter.active(cb)
+        expected=sum(len(t['required_evidence']) for t in canonical['trajectories'] if t['state']=='ACTIVE')
+        assert len(requests)==expected and expected>12, (len(requests),expected)
+        assert {tid for r in requests for tid in r['trajectory_ids']}=={t['id'] for t in canonical['trajectories'] if t['state']=='ACTIVE'}
+        assert len({r['request_id'] for r in requests})==len(requests)
+        assert adapter.active(cb)==requests, 'frontier mapping must be deterministic'
+        with (cb/'research/acquisition_requests.jsonl').open('w',encoding='utf-8') as out:
+            out.write(json.dumps(requests[0])+'\\n')
+        assert len(adapter.active(cb))==len(requests), 'duplicate persisted request must collapse'
     with tempfile.TemporaryDirectory() as td:
         b=pathlib.Path(td); (b/'research').mkdir(parents=True); (b/'data/sources').mkdir(parents=True); (b/'data/native').mkdir(parents=True)
         sentinel=b/'data/native/sentinel.json'; sentinel.write_text('{"native":"unchanged"}',encoding='utf-8'); before=sha(sentinel)
