@@ -26,6 +26,16 @@ def main():
         with (cb/'research/acquisition_requests.jsonl').open('w',encoding='utf-8') as out:
             out.write(json.dumps(requests[0])+'\\n')
         assert len(adapter.active(cb))==len(requests), 'duplicate persisted request must collapse'
+    with tempfile.TemporaryDirectory() as missing_dir:
+        mb=pathlib.Path(missing_dir); (mb/'research').mkdir()
+        (mb/'research/frontier.json').write_text(json.dumps({'trajectories':[{'id':'T1','state':'ACTIVE','required_evidence':['public record']}]}))
+        with mock.patch.object(sys,'argv',[str(ADAPTER),'--base',str(mb)]):
+            try:
+                adapter.main()
+            except RuntimeError as exc:
+                assert 'FAIL_CLOSED' in str(exc) and 'source inventory' in str(exc)
+            else:
+                raise AssertionError('Missing source inventory must fail closed')
     with tempfile.TemporaryDirectory() as td:
         b=pathlib.Path(td); (b/'research').mkdir(parents=True); (b/'data/sources').mkdir(parents=True); (b/'data/native').mkdir(parents=True)
         sentinel=b/'data/native/sentinel.json'; sentinel.write_text('{"native":"unchanged"}',encoding='utf-8'); before=sha(sentinel)
