@@ -11,7 +11,7 @@ def load_adapter():
 def read_jsonl(path): return [json.loads(x) for x in path.read_text(encoding='utf-8').splitlines() if x.strip()]
 def sha(path): return hashlib.sha256(path.read_bytes()).hexdigest()
 def main():
-    adapter=load_adapter()
+    adapter=load_adapter(); adapter.HOST_SPACING=0; adapter.RETRY_DELAY=0
     canonical=json.loads((ROOT/'research/frontier.json').read_text(encoding='utf-8'))
     assert len([t for t in canonical['trajectories'] if t['state']=='ACTIVE'])==12
     with tempfile.TemporaryDirectory() as canonical_dir:
@@ -96,6 +96,26 @@ def main():
         assert len(rr)==2 and {x['result'] for x in rr}=={'CANDIDATES_IDENTIFIED','NO_UPDATE'}, rr
         assert adapter.query_terms('official SEC/Treasury/White House instruments')==['instruments'], 'source/institution names alone are not relevance evidence'
         assert not adapter.matches(['custody','rules'],'treasury custody notice'), 'one generic overlap must not create a lead'
+    # Subject-gated trajectories: a lead must name the subject; subject words do not double as evidence.
+    subject=['sanctions','stablecoin']
+    assert adapter.matches(adapter.query_terms('sanctions/access constraints'),'treasury eases access constraints on sanctions program',subject)
+    assert not adapter.matches(adapter.query_terms('sanctions/access constraints'),'sanctions programs and country information',subject), 'navigation naming only the subject is not a lead'
+    assert not adapter.matches(adapter.query_terms('access constraints'),'bank access constraints rule',subject), 'evidence without subject is not a lead'
+    assert not adapter.matches([],'unstablecoinish',['stablecoin']), 'subject terms match whole words only'
+    with tempfile.TemporaryDirectory() as gd:
+        gb=pathlib.Path(gd); (gb/'research').mkdir(); (gb/'data/sources').mkdir(parents=True)
+        (gb/'research/frontier.json').write_text(json.dumps({'trajectories':[{'id':'T1','state':'ACTIVE','required_evidence':['custody rules'],'subject_terms':['Stablecoin']}]}))
+        assert adapter.active(gb)[0]['subject_terms']==['stablecoin']
+        (gb/'data/sources/sources_whitelist.csv').write_text('name,type,url,authority_class\nfeed,rss,https://fixture.local/throttled.xml,official-register\n')
+        rss=b'<rss><channel><item><title>Stablecoin custody rules</title><link>https://fixture.local/a</link></item><item><title>Bank custody rules</title><link>https://fixture.local/b</link></item></channel></rss>'
+        attempts=[]
+        def throttled(request,timeout=15):
+            attempts.append(1)
+            if len(attempts)==1: raise adapter.urllib.error.HTTPError(request.full_url,429,'Too Many Requests',{},None)
+            return FakeResponse(rss)
+        with mock.patch.object(adapter.urllib.request,'urlopen',side_effect=throttled), mock.patch.object(sys,'argv',[str(ADAPTER),'--base',str(gb)]): adapter.main()
+        assert len(attempts)==2, 'throttled source gets exactly one retry'
+        assert [x['source_url'] for x in read_jsonl(gb/'research/source_candidates.jsonl')]==['https://fixture.local/a']
         print(json.dumps({'status':'PASS','repository':REPOSITORY,'active_trajectory_requests':1,'saturated_trajectory_requests':0,'candidates':2,'receipts':2,'supporting_and_contrary_leads_preserved':True,'null_result_preserved':True,'duplicate_links_collapsed':True,'native_state_unchanged':True,'github_token_authority':'NONE','credential_authority':'TV/TVC','authority_effect':'NONE'},sort_keys=True))
     return 0
 if __name__=='__main__': raise SystemExit(main())

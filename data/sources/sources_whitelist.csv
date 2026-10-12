@@ -7,3 +7,7 @@ SRC-SEC-PRESS,SEC Press Releases,rss,https://www.sec.gov/news/pressreleases.rss,
 SRC-TREASURY-PRESS,Treasury Press Releases,site,https://home.treasury.gov/news/press-releases,official-executive,"Sanctions, stablecoin and FX policy statements"
 SRC-CFTC-PRESS,CFTC Press Releases,site,https://www.cftc.gov/PressRoom/PressReleases,official-regulator,"Digital-asset market regulation chronology"
 SRC-HOUSE-OVERSIGHT-RSS,House Oversight Press,rss,https://oversight.house.gov/feed/,official-legislative,"Inherited from FREE-DOM governed whitelist"
+SRC-FR-TERM-STABLECOIN,Federal Register search: stablecoin,rss,https://www.federalregister.gov/api/v1/documents.rss?conditions%5Bterm%5D=stablecoin&order=newest,official-register,"Subject-targeted official register search"
+SRC-FR-TERM-DIGITAL-ASSET,Federal Register search: digital asset,rss,https://www.federalregister.gov/api/v1/documents.rss?conditions%5Bterm%5D=digital+asset&order=newest,official-register,"Subject-targeted official register search"
+SRC-FR-TERM-CRUDE-OIL,Federal Register search: crude oil,rss,https://www.federalregister.gov/api/v1/documents.rss?conditions%5Bterm%5D=crude+oil&order=newest,official-register,"Subject-targeted official register search"
+SRC-FR-TERM-SANCTIONS,Federal Register search: sanctions,rss,https://www.federalregister.gov/api/v1/documents.rss?conditions%5Bterm%5D=sanctions&order=newest,official-register,"Subject-targeted official register search"
