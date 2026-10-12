@@ -44,6 +44,16 @@ def main():
             try: adapter.main()
             except RuntimeError as exc: assert 'FAIL_CLOSED' in str(exc) and 'usable HTTP(S)' in str(exc)
             else: raise AssertionError('Unusable source inventory must fail closed')
+    with tempfile.TemporaryDirectory() as failed_dir:
+        fb=pathlib.Path(failed_dir); (fb/'research').mkdir(); (fb/'data/sources').mkdir(parents=True)
+        (fb/'research/frontier.json').write_text(json.dumps({'trajectories':[{'id':'T1','state':'ACTIVE','required_evidence':['public record']}]}))
+        (fb/'data/sources/sources_whitelist.csv').write_text('name,url,authority_class\nfailed,https://fixture.local/fails,official\n')
+        with mock.patch.object(adapter.urllib.request,'urlopen',side_effect=OSError('offline')), mock.patch.object(sys,'argv',[str(ADAPTER),'--base',str(fb)]):
+            try: adapter.main()
+            except RuntimeError as exc: assert 'FAIL_CLOSED' in str(exc) and 'all configured source scans failed' in str(exc)
+            else: raise AssertionError('All-failed acquisition cycle must fail closed')
+        failed=read_jsonl(fb/'research/research_receipts.jsonl')
+        assert len(failed)==1 and failed[0]['result']=='FAILED', 'failure receipt must persist'
     with tempfile.TemporaryDirectory() as td:
         b=pathlib.Path(td); (b/'research').mkdir(parents=True); (b/'data/sources').mkdir(parents=True); (b/'data/native').mkdir(parents=True)
         sentinel=b/'data/native/sentinel.json'; sentinel.write_text('{"native":"unchanged"}',encoding='utf-8'); before=sha(sentinel)
