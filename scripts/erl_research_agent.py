@@ -33,9 +33,25 @@ class Links(HTMLParser):
 def active(base):
     out=jsonl(base/'research/acquisition_requests.jsonl');f=load(base/'research/frontier.json')
     for t in f.get('trajectories',[]):
-        if t.get('state') in {'OPEN','ACTIVE'}:
-            for q in t.get('acquisition_queries',[]):out.append({'request_id':'frontier-'+sid(t.get('trajectory_id'),q),'trajectory_ids':[t.get('trajectory_id')],'query':q,'state':'ACTIVE'})
-    return [r for r in out if r.get('state','ACTIVE') in {'OPEN','ACTIVE','RETRY'}]
+        if t.get('state') not in {'OPEN','ACTIVE'}:
+            continue
+        trajectory_id=t.get('trajectory_id') or t.get('id')
+        if not trajectory_id:
+            raise ValueError('Active frontier trajectory missing identifier')
+        queries=t.get('acquisition_queries')
+        if queries is None:
+            queries=t.get('required_evidence',[])
+        if not queries:
+            raise ValueError('Active frontier trajectory has no acquisition queries or evidence targets: '+trajectory_id)
+        for q in queries:
+            if not isinstance(q,str) or not q.strip():
+                raise ValueError('Invalid acquisition query for '+trajectory_id)
+            out.append({'request_id':'frontier-'+sid(trajectory_id,q),'trajectory_ids':[trajectory_id],'query':q,'state':'ACTIVE'})
+    unique={}
+    for r in out:
+        if r.get('state','ACTIVE') in {'OPEN','ACTIVE','RETRY'}:
+            unique.setdefault(r.get('request_id'),r)
+    return list(unique.values())
 def packet(req,src,title,link):return {'schema':'stegverse.erl.research_source_candidate.v1','candidate_id':'SRC-'+sid(req.get('request_id'),link),'repository':REPOSITORY,'trajectory_ids':req.get('trajectory_ids',[]),'acquisition_request_id':req.get('request_id'),'query':req.get('query',''),'source_url':link,'source_title':title,'retrieved_at':now(),'source_class':src.get('authority_class') or src.get('type') or 'unknown','authority_proximity':'unknown','content_sha256':None,'custody_pointer':None,'verification_state':'UNVERIFIED','evidence_role':'lead-only','native_records_mutated':False,'evaluation_changed':False,'discovered_by':'scripts/erl_research_agent.py','transport':{'source_repository':REPOSITORY,'destination_repository':'StegVerse-Labs/Executive_Rhetoric_Ledger','authority_effect':'NONE','credential_authority':'TV/TVC','github_token_authority':'NONE'}}
 def main():
     p=argparse.ArgumentParser();p.add_argument('--base',default='.');p.add_argument('--dry-run',action='store_true');a=p.parse_args();b=pathlib.Path(a.base).resolve();R=active(b);S=sources(b/'data/sources/sources_whitelist.csv');count=0;seen=set()
