@@ -1,0 +1,9 @@
+source_id,name,type,url,authority_class,notes
+SRC-WH-PRESIDENTIAL-ACTIONS,White House Presidential Actions,site,https://www.whitehouse.gov/presidential-actions/,official-executive,"Primary executive instruments and statements; public index page"
+SRC-WH-BRIEFINGS,White House Briefings and Statements,site,https://www.whitehouse.gov/briefings-statements/,official-executive,"Primary executive statements; public index page"
+SRC-FR-PRESDOCU,Federal Register Presidential Documents,rss,https://www.federalregister.gov/api/v1/documents.rss?conditions%5Btype%5D%5B%5D=PRESDOCU,official-register,"Published presidential documents with effective dates"
+SRC-FR-SEC,Federal Register SEC Documents,rss,https://www.federalregister.gov/api/v1/documents.rss?conditions%5Bagencies%5D%5B%5D=securities-and-exchange-commission,official-register,"SEC rules and notices; crypto-policy instrument chronology"
+SRC-SEC-PRESS,SEC Press Releases,rss,https://www.sec.gov/news/pressreleases.rss,official-regulator,"Regulatory case and policy chronology"
+SRC-TREASURY-PRESS,Treasury Press Releases,site,https://home.treasury.gov/news/press-releases,official-executive,"Sanctions, stablecoin and FX policy statements"
+SRC-CFTC-PRESS,CFTC Press Releases,site,https://www.cftc.gov/PressRoom/PressReleases,official-regulator,"Digital-asset market regulation chronology"
+SRC-HOUSE-OVERSIGHT-RSS,House Oversight Press,rss,https://oversight.house.gov/feed/,official-legislative,"Inherited from FREE-DOM governed whitelist"

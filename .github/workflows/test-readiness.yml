@@ -17,6 +17,9 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+      - name: ERL research adapter deterministic conformance
+        run: python tests/test_erl_research_adapter_deterministic.py
+
       - name: Baseline repository smoke test
         run: |
           python - <<'PY'

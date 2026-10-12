@@ -27,10 +27,30 @@ jobs:
       - name: Validate research adapter
         run: python tests/test_erl_research_adapter_deterministic.py
 
+      - name: Record pre-cycle receipt count
+        run: echo "PRE_CYCLE_RECEIPTS=$(grep -c . research/research_receipts.jsonl || true)" >> "$GITHUB_ENV"
+
       - name: Acquire new trajectory-scoped source candidates
         run: python scripts/erl_research_agent.py
 
-      - name: Sort, deduplicate, and summarize current research data
+      - name: Verify source scan evidence exists for active research
+        run: |
+          python - <<'PY'
+          import json,pathlib
+          from scripts.erl_research_agent import active
+          base=pathlib.Path('.')
+          requests=active(base)
+          path=base/'research/research_receipts.jsonl'
+          receipts=[json.loads(line) for line in path.read_text(encoding='utf-8').splitlines() if line.strip()] if path.exists() else []
+          import os
+          before=int(os.environ.get('PRE_CYCLE_RECEIPTS') or 0)
+          # Pre-existing receipts must not satisfy this cycle; require fresh appended receipts.
+          if requests and len(receipts)<=before:
+              raise SystemExit('FAIL_CLOSED: this cycle appended no source-scan receipts')
+          print(json.dumps({'active_requests':len(requests),'pre_cycle_receipts':before,'persisted_scan_receipts':len(receipts),'cycle_receipts':len(receipts)-before}))
+          PY
+
+      - name: Summarize append-only research data without rewriting history
         run: |
           python - <<'PY'
           import json, pathlib, datetime
@@ -41,17 +61,9 @@ jobs:
               for line in p.read_text(encoding='utf-8').splitlines():
                   if line.strip(): out.append(json.loads(line))
               return out
-          def write_jsonl(p,rows):
-              p.write_text(''.join(json.dumps(r,sort_keys=True)+'\n' for r in rows),encoding='utf-8')
+          # Acquisition JSONL is append-only; never rewrite or deduplicate history.
           candidates=load_jsonl(root/'source_candidates.jsonl')
           receipts=load_jsonl(root/'research_receipts.jsonl')
-          by_candidate={r.get('candidate_id') or json.dumps(r,sort_keys=True):r for r in candidates}
-          by_receipt={r.get('receipt_id') or json.dumps(r,sort_keys=True):r for r in receipts}
-          candidates=list(by_candidate.values()); receipts=list(by_receipt.values())
-          candidates.sort(key=lambda r:(tuple(r.get('trajectory_ids',[])),r.get('source_class',''),r.get('source_url','')))
-          receipts.sort(key=lambda r:(r.get('request_id',''),r.get('source_scanned',''),r.get('retrieved_at','')))
-          write_jsonl(root/'source_candidates.jsonl',candidates)
-          write_jsonl(root/'research_receipts.jsonl',receipts)
           status_counts={}
           for r in receipts:
               status_counts[r.get('result','UNKNOWN')]=status_counts.get(r.get('result','UNKNOWN'),0)+1
@@ -62,12 +74,12 @@ jobs:
             'schema':'stegverse.erl.active_research_state.v1',
             'repository':'StegVerse-Labs/Trumpality',
             'updated_at':datetime.datetime.now(datetime.timezone.utc).isoformat(),
-            'state':'ACTIVE_ACQUIRING',
+            'state':'ACQUISITION_OBSERVED' if any(r.get('result')=='CANDIDATES_IDENTIFIED' for r in receipts) else 'NO_CANDIDATE_EVIDENCE',
             'candidate_count':len(candidates),
             'receipt_count':len(receipts),
             'receipt_results':status_counts,
             'trajectory_candidate_counts':trajectory_counts,
-            'sorting_actions':['deduplicate_candidate_id','deduplicate_receipt_id','sort_by_trajectory_source_url','summarize_result_states'],
+            'sorting_actions':['read_only_summarize_result_states'],
             'evaluation_authority_effect':'NONE'
           }
           (root/'active-research-state.json').write_text(json.dumps(state,indent=2,sort_keys=True)+'\n',encoding='utf-8')
@@ -83,7 +95,8 @@ jobs:
             echo 'No semantic research-data change to persist.'
           else
             git commit -m 'research: persist active ERL acquisition cycle'
-            git push
+            # Prevent silent races and preserve the checked-out expected head.
+            git push origin "HEAD:${GITHUB_REF_NAME}"
           fi
 
       - name: Upload cycle artifact

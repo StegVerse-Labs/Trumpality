@@ -12,6 +12,48 @@ def read_jsonl(path): return [json.loads(x) for x in path.read_text(encoding='ut
 def sha(path): return hashlib.sha256(path.read_bytes()).hexdigest()
 def main():
     adapter=load_adapter()
+    canonical=json.loads((ROOT/'research/frontier.json').read_text(encoding='utf-8'))
+    assert len([t for t in canonical['trajectories'] if t['state']=='ACTIVE'])==12
+    with tempfile.TemporaryDirectory() as canonical_dir:
+        cb=pathlib.Path(canonical_dir); (cb/'research').mkdir()
+        (cb/'research/frontier.json').write_text(json.dumps(canonical),encoding='utf-8')
+        requests=adapter.active(cb)
+        expected=sum(len(t['required_evidence']) for t in canonical['trajectories'] if t['state']=='ACTIVE')
+        assert len(requests)==expected and expected>12, (len(requests),expected)
+        assert {tid for r in requests for tid in r['trajectory_ids']}=={t['id'] for t in canonical['trajectories'] if t['state']=='ACTIVE'}
+        assert len({r['request_id'] for r in requests})==len(requests)
+        assert adapter.active(cb)==requests, 'frontier mapping must be deterministic'
+        with (cb/'research/acquisition_requests.jsonl').open('w',encoding='utf-8') as out:
+            out.write(json.dumps(requests[0])+'\n')
+        assert len(adapter.active(cb))==len(requests), 'duplicate persisted request must collapse'
+    with tempfile.TemporaryDirectory() as missing_dir:
+        mb=pathlib.Path(missing_dir); (mb/'research').mkdir()
+        (mb/'research/frontier.json').write_text(json.dumps({'trajectories':[{'id':'T1','state':'ACTIVE','required_evidence':['public record']}]}))
+        with mock.patch.object(sys,'argv',[str(ADAPTER),'--base',str(mb)]):
+            try:
+                adapter.main()
+            except RuntimeError as exc:
+                assert 'FAIL_CLOSED' in str(exc) and 'source inventory' in str(exc)
+            else:
+                raise AssertionError('Missing source inventory must fail closed')
+    with tempfile.TemporaryDirectory() as invalid_dir:
+        ib=pathlib.Path(invalid_dir); (ib/'research').mkdir(); (ib/'data/sources').mkdir(parents=True)
+        (ib/'research/frontier.json').write_text(json.dumps({'trajectories':[{'id':'T1','state':'ACTIVE','required_evidence':['public record']}]}))
+        (ib/'data/sources/sources_whitelist.csv').write_text('name,url,authority_class\ninvalid,not-a-web-address,official\n')
+        with mock.patch.object(sys,'argv',[str(ADAPTER),'--base',str(ib)]):
+            try: adapter.main()
+            except RuntimeError as exc: assert 'FAIL_CLOSED' in str(exc) and 'usable HTTP(S)' in str(exc)
+            else: raise AssertionError('Unusable source inventory must fail closed')
+    with tempfile.TemporaryDirectory() as failed_dir:
+        fb=pathlib.Path(failed_dir); (fb/'research').mkdir(); (fb/'data/sources').mkdir(parents=True)
+        (fb/'research/frontier.json').write_text(json.dumps({'trajectories':[{'id':'T1','state':'ACTIVE','required_evidence':['public record']}]}))
+        (fb/'data/sources/sources_whitelist.csv').write_text('name,url,authority_class\nfailed,https://fixture.local/fails,official\n')
+        with mock.patch.object(adapter.urllib.request,'urlopen',side_effect=OSError('offline')), mock.patch.object(sys,'argv',[str(ADAPTER),'--base',str(fb)]):
+            try: adapter.main()
+            except RuntimeError as exc: assert 'FAIL_CLOSED' in str(exc) and 'all configured source scans failed' in str(exc)
+            else: raise AssertionError('All-failed acquisition cycle must fail closed')
+        failed=read_jsonl(fb/'research/research_receipts.jsonl')
+        assert len(failed)==1 and failed[0]['result']=='FAILED', 'failure receipt must persist'
     with tempfile.TemporaryDirectory() as td:
         b=pathlib.Path(td); (b/'research').mkdir(parents=True); (b/'data/sources').mkdir(parents=True); (b/'data/native').mkdir(parents=True)
         sentinel=b/'data/native/sentinel.json'; sentinel.write_text('{"native":"unchanged"}',encoding='utf-8'); before=sha(sentinel)
@@ -26,8 +68,34 @@ def main():
         assert len(c)==2 and len(r)==2; assert {x['source_title'] for x in c}=={'alpha beta supporting record','alpha beta contrary record'}
         assert all(x['repository']==REPOSITORY and x['native_records_mutated'] is False and x['evaluation_changed'] is False for x in c)
         assert all(x['transport']['credential_authority']=='TV/TVC' and x['transport']['github_token_authority']=='NONE' and x['transport']['authority_effect']=='NONE' for x in c)
-        assert any(x['result']=='NO_UPDATE' and x['hits']==0 for x in r); assert any(x['result']=='CANDIDATES_EMITTED' and x['hits']==2 for x in r)
+        assert any(x['result']=='NO_UPDATE' and x['hits']==0 for x in r); assert any(x['result']=='CANDIDATES_IDENTIFIED' and x['hits']==2 for x in r)
+        # Repeated acquisition must preserve scan receipts but not duplicate candidate records.
+        before_candidates=(b/'research/source_candidates.jsonl').read_bytes()
+        before_receipts=(b/'research/research_receipts.jsonl').read_bytes()
+        with mock.patch.object(adapter.urllib.request,'urlopen',side_effect=fake), mock.patch.object(sys,'argv',[str(ADAPTER),'--base',str(b)]): adapter.main()
+        after_candidates=(b/'research/source_candidates.jsonl').read_bytes()
+        after_receipts=(b/'research/research_receipts.jsonl').read_bytes()
+        assert after_candidates==before_candidates, 'second cycle must not duplicate candidate records'
+        assert after_receipts.startswith(before_receipts), 'second cycle must preserve prior receipt bytes'
+        r2=read_jsonl(b/'research/research_receipts.jsonl')
+        assert len(r2)==4 and len({x['receipt_id'] for x in r2})==4, 'each cycle requires unique scan receipts'
         assert sha(sentinel)==before, 'ERL sidecar must not mutate native Trumpality state'
+    with tempfile.TemporaryDirectory() as rd:
+        rb=pathlib.Path(rd); (rb/'research').mkdir(); (rb/'data/sources').mkdir(parents=True)
+        (rb/'research/frontier.json').write_text(json.dumps({'trajectories':[{'id':'T1','state':'ACTIVE','required_evidence':['stablecoin custody rules','announcement records']}]}))
+        (rb/'data/sources/sources_whitelist.csv').write_text('name,type,url,authority_class\nfeed,rss,https://fixture.local/feed.xml,official-register\n')
+        rss=b'<?xml version="1.0"?><rss><channel><item><title>Stablecoin custody rules adopted</title><link>https://fixture.local/doc/1</link></item><item><title>Unrelated notice</title><link>https://fixture.local/stablecoin-custody/2</link></item></channel></rss>'
+        calls=[]
+        def feed(request,timeout=15): calls.append(request.full_url); return FakeResponse(rss)
+        with mock.patch.object(adapter.urllib.request,'urlopen',side_effect=feed), mock.patch.object(sys,'argv',[str(ADAPTER),'--base',str(rb)]): adapter.main()
+        assert calls==['https://fixture.local/feed.xml'], 'each source must be fetched once per cycle regardless of request count'
+        rc=read_jsonl(rb/'research/source_candidates.jsonl'); rr=read_jsonl(rb/'research/research_receipts.jsonl')
+        assert [x['source_url'] for x in rc]==['https://fixture.local/doc/1','https://fixture.local/stablecoin-custody/2'], rc
+        assert all(x['listing_response_sha256']==hashlib.sha256(rss).hexdigest() for x in rc)
+        assert {x['custody_pointer'] for x in rc} <= {x['receipt_id'] for x in rr}, 'candidates must point at the scan receipt that produced them'
+        assert len(rr)==2 and {x['result'] for x in rr}=={'CANDIDATES_IDENTIFIED','NO_UPDATE'}, rr
+        assert adapter.query_terms('official SEC/Treasury/White House instruments')==['instruments'], 'source/institution names alone are not relevance evidence'
+        assert not adapter.matches(['custody','rules'],'treasury custody notice'), 'one generic overlap must not create a lead'
         print(json.dumps({'status':'PASS','repository':REPOSITORY,'active_trajectory_requests':1,'saturated_trajectory_requests':0,'candidates':2,'receipts':2,'supporting_and_contrary_leads_preserved':True,'null_result_preserved':True,'duplicate_links_collapsed':True,'native_state_unchanged':True,'github_token_authority':'NONE','credential_authority':'TV/TVC','authority_effect':'NONE'},sort_keys=True))
     return 0
 if __name__=='__main__': raise SystemExit(main())

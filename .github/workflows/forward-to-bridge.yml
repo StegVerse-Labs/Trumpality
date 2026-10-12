@@ -13,8 +13,25 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GH_STEGVERSE_AI_TOKEN }}
         run: |
-          echo "${GH_TOKEN}" | gh auth login --with-token
-          gh api repos/StegVerse/hybrid-collab-bridge/dispatches \
+          if [ -z "${GH_TOKEN}" ]; then
+            echo "::error::GH_STEGVERSE_AI_TOKEN is unavailable; bridge dispatch denied"
+            exit 1
+          fi
+          # A 204 from /dispatches only means GitHub accepted the event. Confirm the bridge
+          # still subscribes to it; its receiver was contained in hybrid-collab-bridge efb28c1.
+          receivers=$(gh api 'repos/StegVerse-Labs/hybrid-collab-bridge/contents/.github/workflows' --jq '.[].path' \
+            | while read -r p; do
+                gh api "repos/StegVerse-Labs/hybrid-collab-bridge/contents/${p}" --jq '.content' | base64 -d \
+                  | grep -q 'stegverse-ai-review' && echo "$p"
+              done || true)
+          if [ -z "${receivers}" ]; then
+            echo "::notice::DENY: no hybrid-collab-bridge workflow subscribes to repository_dispatch 'stegverse-ai-review'; dispatch not sent"
+            echo "Bridge disposition: DENY (receiver contained). Remaining predicate: a governed bridge receiver for stegverse-ai-review." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          echo "Bridge receivers: ${receivers}"
+          gh api repos/StegVerse-Labs/hybrid-collab-bridge/dispatches \
             -X POST \
-            -F event_type="stegverse-ai-review" \
-            -F client_payload="{\"target_repo\":\"${GITHUB_REPOSITORY}\",\"pr_number\":${{ github.event.pull_request.number }}}"
+            -f event_type="stegverse-ai-review" \
+            -F client_payload[target_repo]="${GITHUB_REPOSITORY}" \
+            -F client_payload[pr_number]=${{ github.event.pull_request.number }}
