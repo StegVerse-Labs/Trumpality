@@ -57,6 +57,9 @@ def main():
     p=argparse.ArgumentParser();p.add_argument('--base',default='.');p.add_argument('--dry-run',action='store_true');a=p.parse_args();b=pathlib.Path(a.base).resolve();R=active(b);S=sources(b/'data/sources/sources_whitelist.csv');count=0;seen=set()
     if R and not S:
         raise RuntimeError('FAIL_CLOSED: source inventory missing or empty; acquisition not executed')
+    # Keep scan evidence per cycle even when the same source body is retrieved again.
+    cycle_id=sid(now(),len(jsonl(b/'research/research_receipts.jsonl')))
+    existing_candidates={r.get('candidate_id') for r in jsonl(b/'research/source_candidates.jsonl')}
     for req in R:
         terms=[x.lower() for x in re.findall(r'[A-Za-z0-9][A-Za-z0-9._-]{2,}',req.get('query',''))][:12]
         for src in S:
@@ -68,10 +71,15 @@ def main():
                     hay=(title+' '+href).lower()
                     if terms and not all(t in hay for t in terms):continue
                     link=urljoin(u,href);k=sid(link)
-                    if k in seen:continue
-                    seen.add(k);hits.append((title,link))
-                for title,link in hits[:10]:append(b/'research/source_candidates.jsonl',packet(req,src,title,link),a.dry_run);count+=1
-                append(b/'research/research_receipts.jsonl',{'receipt_id':'RSRCH-'+sid(req.get('request_id'),u,digest),'request_id':req.get('request_id'),'trajectory_ids':req.get('trajectory_ids',[]),'source_scanned':u,'retrieved_at':now(),'response_hash':digest,'hits':len(hits),'result':'NO_UPDATE' if not hits else 'CANDIDATES_EMITTED','native_records_mutated':False,'evaluation_changed':False},a.dry_run)
-            except Exception as e:append(b/'research/research_receipts.jsonl',{'receipt_id':'RSRCH-'+sid(req.get('request_id'),u,now()),'request_id':req.get('request_id'),'trajectory_ids':req.get('trajectory_ids',[]),'source_scanned':u,'retrieved_at':now(),'result':'FAILED','error':type(e).__name__,'native_records_mutated':False,'evaluation_changed':False},a.dry_run)
+                    if (req.get('request_id'),k) in seen:continue
+                    seen.add((req.get('request_id'),k));hits.append((title,link))
+                for title,link in hits[:10]:
+                    candidate=packet(req,src,title,link)
+                    if candidate['candidate_id'] in existing_candidates:continue
+                    append(b/'research/source_candidates.jsonl',candidate,a.dry_run)
+                    existing_candidates.add(candidate['candidate_id'])
+                    count+=1
+                append(b/'research/research_receipts.jsonl',{'receipt_id':'RSRCH-'+sid(cycle_id,req.get('request_id'),u,digest),'request_id':req.get('request_id'),'trajectory_ids':req.get('trajectory_ids',[]),'source_scanned':u,'retrieved_at':now(),'response_hash':digest,'hits':len(hits),'result':'NO_UPDATE' if not hits else 'CANDIDATES_EMITTED','native_records_mutated':False,'evaluation_changed':False},a.dry_run)
+            except Exception as e:append(b/'research/research_receipts.jsonl',{'receipt_id':'RSRCH-'+sid(cycle_id,req.get('request_id'),u,now()),'request_id':req.get('request_id'),'trajectory_ids':req.get('trajectory_ids',[]),'source_scanned':u,'retrieved_at':now(),'result':'FAILED','error':type(e).__name__,'native_records_mutated':False,'evaluation_changed':False},a.dry_run)
     print(json.dumps({'repository':REPOSITORY,'requests':len(R),'sources':len(S),'candidates':count,'dry_run':a.dry_run,'native_records_mutated':False,'evaluation_changed':False,'candidate_schema':'stegverse.erl.research_source_candidate.v1','credential_authority':'TV/TVC','github_token_authority':'NONE'},sort_keys=True))
 if __name__=='__main__':main()
