@@ -75,7 +75,8 @@ jobs:
             echo 'No semantic research-data change to persist.'
           else
             git commit -m 'research: persist active ERL acquisition cycle'
-            git push
+            # Prevent silent races and preserve the checked-out expected head.
+            git push origin "HEAD:${GITHUB_REF_NAME}"
           fi
 
       - name: Upload cycle artifact
