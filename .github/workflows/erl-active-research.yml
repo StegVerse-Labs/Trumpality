@@ -54,7 +54,7 @@ jobs:
             'schema':'stegverse.erl.active_research_state.v1',
             'repository':'StegVerse-Labs/Trumpality',
             'updated_at':datetime.datetime.now(datetime.timezone.utc).isoformat(),
-            'state':'ACQUISITION_OBSERVED' if any(r.get('result')=='CANDIDATES_EMITTED' for r in receipts) else 'NO_CANDIDATE_EVIDENCE',
+            'state':'ACQUISITION_OBSERVED' if any(r.get('result')=='CANDIDATES_IDENTIFIED' for r in receipts) else 'NO_CANDIDATE_EVIDENCE',
             'candidate_count':len(candidates),
             'receipt_count':len(receipts),
             'receipt_results':status_counts,
