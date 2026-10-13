@@ -21,3 +21,5 @@ SRC-MARKETWATCH-TOP,MarketWatch Top Stories RSS,rss,https://feeds.content.dowjon
 SRC-COINDESK,CoinDesk RSS,rss,https://www.coindesk.com/arc/outboundfeeds/rss/?outputType=xml,crypto-trade-press,"Lead-only trade press for token, stablecoin and bridge-asset trajectories"
 SRC-COINTELEGRAPH,Cointelegraph RSS,rss,https://cointelegraph.com/rss,crypto-trade-press,"Lead-only trade press for token, exchange-counterparty and bridge-asset trajectories"
 SRC-DECRYPT,Decrypt RSS,rss,https://decrypt.co/feed,crypto-trade-press,"Lead-only trade press for token, stablecoin and bridge-asset trajectories"
+SRC-GNEWS-TRUMP-MEMECOIN,Google News search RSS: $TRUMP memecoin,rss,https://news.google.com/rss/search?q=%22%24TRUMP%22+memecoin&hl=en-US&gl=US&ceid=US:en,news-aggregator-search,"Lead-only aggregator search for the TRUMP token trajectory; each item links to the originating outlet"
+SRC-GNEWS-MELANIA-MEMECOIN,Google News search RSS: $MELANIA memecoin,rss,https://news.google.com/rss/search?q=%22%24MELANIA%22+memecoin&hl=en-US&gl=US&ceid=US:en,news-aggregator-search,"Lead-only aggregator search for the MELANIA token trajectory; each item links to the originating outlet"
