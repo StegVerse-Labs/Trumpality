@@ -1,14 +1,14 @@
 {
-  "manifest_version": "1.0.0",
-  "producer_repository": "StegVerse-Labs/Trumpality",
-  "producer_commit": "c8a4bc85649bcce2b1aeabe805e2e07023ffbcf8",
-  "generated_at": "2026-07-20T14:08:00Z",
-  "records": [],
   "authority": {
     "candidate_only": true,
     "may_claim_truth": false,
     "may_classify_final": false,
     "may_promote": false,
     "requires_ledger_review": true
-  }
+  },
+  "generated_at": "2026-10-13T00:26:42.480105Z",
+  "manifest_version": "1.0.0",
+  "producer_commit": "64cc44ca320cb9d70686fc68dc2cd45b70694562",
+  "producer_repository": "StegVerse-Labs/Trumpality",
+  "records": []
 }
