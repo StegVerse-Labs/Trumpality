@@ -99,7 +99,8 @@ jobs:
             echo 'No semantic research-data change to persist.'
           else
             git commit -m 'research: persist active ERL acquisition cycle'
-            # Prevent silent races and preserve the checked-out expected head.
+            # Only this workflow writes research/*; integrate other writers' commits before pushing.
+            git pull --rebase origin "${GITHUB_REF_NAME}"
             git push origin "HEAD:${GITHUB_REF_NAME}"
           fi
 
