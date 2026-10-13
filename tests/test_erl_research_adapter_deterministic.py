@@ -3,6 +3,7 @@ from __future__ import annotations
 import importlib.util,hashlib,json,pathlib,sys,tempfile
 from unittest import mock
 ROOT=pathlib.Path(__file__).resolve().parents[1]; ADAPTER=ROOT/'scripts'/'erl_research_agent.py'; REPOSITORY='StegVerse-Labs/Trumpality'
+ACTIONABLE=('failure_code','failed_predicate','required_evidence_or_repair','retry_entrypoint','owning_existing_goal','next_attempt')
 class FakeResponse:
     def __init__(self,body:bytes): self._body=body; self.headers={'Content-Type':'text/html'}
     def read(self,_limit=-1): return self._body
@@ -36,6 +37,9 @@ def main():
                 assert 'FAIL_CLOSED' in str(exc) and 'source inventory' in str(exc)
             else:
                 raise AssertionError('Missing source inventory must fail closed')
+        md=read_jsonl(mb/'research/transition_dispositions.jsonl')
+        assert len(md)==1 and md[0]['disposition']=='FAIL_CLOSED' and md[0]['failure_code']=='SOURCE_INVENTORY_MISSING' and md[0]['consequence_committed'] is False
+        assert all(md[0].get(k) for k in ACTIONABLE), 'a non-ALLOW disposition must be actionable, never a bare blocker'
     with tempfile.TemporaryDirectory() as invalid_dir:
         ib=pathlib.Path(invalid_dir); (ib/'research').mkdir(); (ib/'data/sources').mkdir(parents=True)
         (ib/'research/frontier.json').write_text(json.dumps({'trajectories':[{'id':'T1','state':'ACTIVE','required_evidence':['public record']}]}))
@@ -44,6 +48,7 @@ def main():
             try: adapter.main()
             except RuntimeError as exc: assert 'FAIL_CLOSED' in str(exc) and 'usable HTTP(S)' in str(exc)
             else: raise AssertionError('Unusable source inventory must fail closed')
+        assert [x['failure_code'] for x in read_jsonl(ib/'research/transition_dispositions.jsonl')]==['SOURCE_INVENTORY_UNUSABLE']
     with tempfile.TemporaryDirectory() as failed_dir:
         fb=pathlib.Path(failed_dir); (fb/'research').mkdir(); (fb/'data/sources').mkdir(parents=True)
         (fb/'research/frontier.json').write_text(json.dumps({'trajectories':[{'id':'T1','state':'ACTIVE','required_evidence':['public record']}]}))
@@ -54,6 +59,9 @@ def main():
             else: raise AssertionError('All-failed acquisition cycle must fail closed')
         failed=read_jsonl(fb/'research/research_receipts.jsonl')
         assert len(failed)==1 and failed[0]['result']=='FAILED', 'failure receipt must persist'
+        fd=read_jsonl(fb/'research/transition_dispositions.jsonl')
+        assert [x['failure_code'] for x in fd]==['ALL_SOURCE_SCANS_FAILED'] and 'https://fixture.local/fails' in fd[0]['required_evidence_or_repair']
+        assert all(fd[0].get(k) for k in ACTIONABLE)
     with tempfile.TemporaryDirectory() as td:
         b=pathlib.Path(td); (b/'research').mkdir(parents=True); (b/'data/sources').mkdir(parents=True); (b/'data/native').mkdir(parents=True)
         sentinel=b/'data/native/sentinel.json'; sentinel.write_text('{"native":"unchanged"}',encoding='utf-8'); before=sha(sentinel)
@@ -80,6 +88,10 @@ def main():
         r2=read_jsonl(b/'research/research_receipts.jsonl')
         assert len(r2)==4 and len({x['receipt_id'] for x in r2})==4, 'each cycle requires unique scan receipts'
         assert sha(sentinel)==before, 'ERL sidecar must not mutate native Trumpality state'
+        dd=read_jsonl(b/'research/transition_dispositions.jsonl')
+        assert [x['disposition'] for x in dd]==['ALLOW','ALLOW'] and all(x['consequence_committed'] for x in dd)
+        assert dd[-1]['evidence']['research_receipts_sha256_after']==sha(b/'research/research_receipts.jsonl')
+        assert dd[1]['predecessor']['research_receipts_sha256']==dd[0]['evidence']['research_receipts_sha256_after'], 'each ALLOW must chain to the prior cycle state'
     with tempfile.TemporaryDirectory() as rd:
         rb=pathlib.Path(rd); (rb/'research').mkdir(); (rb/'data/sources').mkdir(parents=True)
         (rb/'research/frontier.json').write_text(json.dumps({'trajectories':[{'id':'T1','state':'ACTIVE','required_evidence':['stablecoin custody rules','announcement records']}]}))
@@ -125,6 +137,6 @@ def main():
         (sb/'data/sources/sources_whitelist.csv').write_text('name,type,url,authority_class\nnews,rss,https://fixture.local/news.xml,major-outlet\n')
         with mock.patch.object(adapter.urllib.request,'urlopen',return_value=FakeResponse(summary_feed)), mock.patch.object(sys,'argv',[str(ADAPTER),'--base',str(sb)]): adapter.main()
         assert [x['source_title'] for x in read_jsonl(sb/'research/source_candidates.jsonl')]==['Energy talks stall']
-        print(json.dumps({'status':'PASS','repository':REPOSITORY,'active_trajectory_requests':1,'saturated_trajectory_requests':0,'candidates':2,'receipts':2,'supporting_and_contrary_leads_preserved':True,'null_result_preserved':True,'duplicate_links_collapsed':True,'native_state_unchanged':True,'github_token_authority':'NONE','credential_authority':'TV/TVC','authority_effect':'NONE'},sort_keys=True))
+        print(json.dumps({'status':'PASS','repository':REPOSITORY,'active_trajectory_requests':1,'saturated_trajectory_requests':0,'candidates':2,'receipts':2,'supporting_and_contrary_leads_preserved':True,'null_result_preserved':True,'duplicate_links_collapsed':True,'native_state_unchanged':True,'actionable_non_allow_dispositions':True,'allow_transitions_chained':True,'github_token_authority':'NONE','credential_authority':'TV/TVC','authority_effect':'NONE'},sort_keys=True))
     return 0
 if __name__=='__main__': raise SystemExit(main())
