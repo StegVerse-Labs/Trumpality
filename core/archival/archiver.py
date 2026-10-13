@@ -19,7 +19,10 @@ from datetime import datetime, timezone
 from pathlib import Path
 from urllib.parse import quote
 
-import requests
+import sys
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+from core.http_fetch import fetch  # noqa: E402
 
 DB_PATH = Path("data/processed/records.sqlite")
 SNAPSHOT_DIR = Path("data/archive/html")
@@ -59,8 +62,7 @@ def request_wayback_save(url: str) -> str:
     A submitted URL is a request receipt, not proof that archival completed.
     """
     save_url = f"https://web.archive.org/save/{quote(url, safe=':/?=&%#')}"
-    response = requests.get(save_url, timeout=45, headers={"User-Agent": USER_AGENT})
-    response.raise_for_status()
+    response = fetch(save_url, user_agent=USER_AGENT, timeout=45, read_body=False)
     return response.headers.get("Content-Location") or save_url
 
 
@@ -78,8 +80,7 @@ def archive_record(conn: sqlite3.Connection, row: sqlite3.Row) -> None:
     }
 
     try:
-        response = requests.get(url, timeout=30, headers={"User-Agent": USER_AGENT})
-        response.raise_for_status()
+        response = fetch(url, user_agent=USER_AGENT, timeout=30)
         content = response.content
         digest = hashlib.sha256(content).hexdigest()
         SNAPSHOT_DIR.mkdir(parents=True, exist_ok=True)

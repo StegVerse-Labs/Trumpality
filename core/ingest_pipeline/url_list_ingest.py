@@ -5,9 +5,9 @@ from datetime import datetime, timezone
 from pathlib import Path
 from urllib.parse import urlparse
 
-import requests
-from bs4 import BeautifulSoup
+from html.parser import HTMLParser
 
+from core.http_fetch import fetch as http_fetch
 from core.ingest_pipeline.base_ingest import ensure_db, insert_record
 from core.verification import source_confidence, verification_label
 
@@ -25,16 +25,44 @@ def append_receipt(receipt):
 
 
 def fetch(url):
-  response = requests.get(url, timeout=30, headers={"User-Agent": "Trumpality/1.0"})
-  response.raise_for_status()
-  return response
+  return http_fetch(url, user_agent="Trumpality/1.0", timeout=30)
+
+
+class _HeadSummary(HTMLParser):
+  def __init__(self):
+    super().__init__(convert_charrefs=True)
+    self.title_parts = []
+    self.in_title = False
+    self.title_done = False
+    self.description = ""
+    self.og_description = ""
+
+  def handle_starttag(self, tag, attrs):
+    if tag == "title" and not self.title_done:
+      self.in_title = True
+    elif tag == "meta":
+      values = {key.lower(): (value or "") for key, value in attrs}
+      if values.get("name", "").lower() == "description" and not self.description:
+        self.description = values.get("content", "")
+      elif values.get("property", "").lower() == "og:description" and not self.og_description:
+        self.og_description = values.get("content", "")
+
+  def handle_endtag(self, tag):
+    if tag == "title" and self.in_title:
+      self.in_title = False
+      self.title_done = True
+
+  def handle_data(self, data):
+    if self.in_title:
+      self.title_parts.append(data)
 
 
 def summarize(text):
-  soup = BeautifulSoup(text, "lxml")
-  title = (soup.title.string if soup.title and soup.title.string else "").strip()[:250]
-  meta = soup.find("meta", {"name": "description"}) or soup.find("meta", {"property": "og:description"})
-  desc = meta["content"].strip()[:1000] if meta and meta.get("content") else ""
+  parser = _HeadSummary()
+  parser.feed(text)
+  parser.close()
+  title = "".join(parser.title_parts).strip()[:250]
+  desc = (parser.description or parser.og_description).strip()[:1000]
   return title or "Untitled", desc
 
 
