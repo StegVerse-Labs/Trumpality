@@ -1,8 +1,0 @@
-beautifulsoup4==4.12.3
-requests==2.32.3
-python-dateutil==2.9.0.post0
-tqdm==4.66.4
-lxml==5.2.2
-simplejson==3.19.2
-fastapi==0.115.5
-uvicorn==0.30.6
