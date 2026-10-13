@@ -4,6 +4,9 @@ on:
     - cron: "15 8 * * 2,5"   # Tue/Fri
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   cooccur:
     runs-on: ubuntu-latest
@@ -22,5 +25,9 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "actions@github.com"
           git add -A
-          git commit -m "cooccurrence: updated graph" || echo "no changes"
-          git push
+          if git diff --cached --quiet; then
+            echo "no changes"
+          else
+            git commit -m "cooccurrence: updated graph"
+            git push origin "HEAD:${GITHUB_REF_NAME}"
+          fi

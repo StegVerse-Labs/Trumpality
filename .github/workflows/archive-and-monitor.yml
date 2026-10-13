@@ -87,10 +87,17 @@ jobs:
           assert manifest["authority"]["requires_ledger_review"] is True
           PY
 
+      # data/archive exists only once records have been archived; stage only paths that exist.
       - name: Commit snapshots, exports, manifests, and receipts
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "actions@github.com"
-          git add data/processed data/archive data/receipts datasets/exports
-          git commit -m "archive+monitor: update snapshots, exports, manifest, health, and receipts" || echo "no changes"
-          git push
+          for p in data/processed data/archive data/receipts datasets/exports; do
+            [ -e "$p" ] && git add "$p"
+          done
+          if git diff --cached --quiet; then
+            echo "no changes"
+          else
+            git commit -m "archive+monitor: update snapshots, exports, manifest, health, and receipts"
+            git push origin "HEAD:${GITHUB_REF_NAME}"
+          fi
