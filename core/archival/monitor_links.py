@@ -7,7 +7,10 @@ import sqlite3
 from datetime import datetime, timezone
 from pathlib import Path
 
-import requests
+import sys
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+from core.http_fetch import HTTPFetchError, fetch  # noqa: E402
 
 DB_PATH = Path("data/processed/records.sqlite")
 RECEIPT_PATH = Path("data/receipts/link_health_receipts.jsonl")
@@ -39,21 +42,15 @@ def ensure_columns(conn: sqlite3.Connection) -> None:
 
 def check_url(url: str) -> tuple[int | None, bool, str]:
     try:
-        response = requests.head(
-            url,
-            timeout=20,
-            allow_redirects=True,
-            headers={"User-Agent": USER_AGENT},
-        )
-        if response.status_code in {403, 405}:
-            response = requests.get(
-                url,
-                timeout=25,
-                allow_redirects=True,
-                stream=True,
-                headers={"User-Agent": USER_AGENT},
-            )
+        try:
+            response = fetch(url, user_agent=USER_AGENT, timeout=20, method="HEAD")
+        except HTTPFetchError as exc:
+            if exc.status_code not in {403, 405}:
+                raise
+            response = fetch(url, user_agent=USER_AGENT, timeout=25, read_body=False)
         return response.status_code, 200 <= response.status_code < 400, ""
+    except HTTPFetchError as exc:
+        return exc.status_code, False, str(exc)[:1000]
     except Exception as exc:
         return None, False, str(exc)[:1000]
 

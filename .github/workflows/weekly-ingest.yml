@@ -22,11 +22,6 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install pinned ingest dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r core/requirements.txt
-
       # Native ingest pipeline; no external reusable workflow or remote runtime.
       - name: Ingest seed sources
         run: python -m core.ingest_pipeline.url_list_ingest --subject "Donald J. Trump" --topic_cluster general --urls seeds/sources.urls.txt

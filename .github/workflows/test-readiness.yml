@@ -20,6 +20,9 @@ jobs:
       - name: ERL research adapter deterministic conformance
         run: python tests/test_erl_research_adapter_deterministic.py
 
+      - name: Standard-library ingest and archival tests
+        run: python -m unittest tests.test_stdlib_ingest -v
+
       - name: Baseline repository smoke test
         run: |
           python - <<'PY'
