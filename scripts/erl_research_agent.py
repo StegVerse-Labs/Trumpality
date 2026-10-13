@@ -38,12 +38,13 @@ def feed_links(data):
     out=[]
     for el in root.iter():
         if el.tag.rsplit('}',1)[-1] not in {'item','entry'}:continue
-        title=link=''
+        title=link=summary=''
         for ch in el:
             name=ch.tag.rsplit('}',1)[-1]
             if name=='title':title=(ch.text or '').strip()
             elif name=='link':link=(ch.text or '').strip() or ch.get('href','')
-        if link:out.append((title,link))
+            elif name in {'description','summary'}:summary=re.sub(r'<[^>]+>',' ',ch.text or '')
+        if link:out.append((title,link,summary))
     return out
 GENERIC={'and','the','for','with','records','record','events','event','evidence','data','series','official','public','map','controls','control','observations','timestamps','timestamp','windows','window','measures','support','matched','periods','snapshots','white','house','treasury','sec'}
 def query_terms(q):
@@ -118,10 +119,11 @@ def main():
                 append(b/'research/research_receipts.jsonl',{'receipt_id':'RSRCH-'+sid(cycle_id,req.get('request_id'),u,'FAILED'),'request_id':req.get('request_id'),'trajectory_ids':req.get('trajectory_ids',[]),'source_scanned':u,'retrieved_at':now(),'result':'FAILED','error':error,'native_records_mutated':False,'evaluation_changed':False},a.dry_run)
                 continue
             hits=[]
-            for title,href in links:
+            for title,href,*summary in links:
                 link=urljoin(u,href)
-                # Match the title and URL path only; the source's own hostname is not evidence of relevance.
-                if not title or not matches(terms,(title+' '+urlsplit(link).path.replace('-',' ')).lower(),req.get('subject_terms')):continue
+                # Match title, feed summary and URL path; the source's own hostname is not evidence of relevance.
+                hay=' '.join([title,*summary,urlsplit(link).path.replace('-',' ')]).lower()
+                if not title or not matches(terms,hay,req.get('subject_terms')):continue
                 k=sid(link)
                 if (req.get('request_id'),k) in seen:continue
                 seen.add((req.get('request_id'),k));hits.append((title,link))

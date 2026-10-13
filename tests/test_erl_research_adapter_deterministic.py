@@ -116,6 +116,15 @@ def main():
         with mock.patch.object(adapter.urllib.request,'urlopen',side_effect=throttled), mock.patch.object(sys,'argv',[str(ADAPTER),'--base',str(gb)]): adapter.main()
         assert len(attempts)==2, 'throttled source gets exactly one retry'
         assert [x['source_url'] for x in read_jsonl(gb/'research/source_candidates.jsonl')]==['https://fixture.local/a']
+    # Feed summaries count toward matching: news headlines often omit the subject named in the summary.
+    summary_feed=b'<rss><channel><item><title>Energy talks stall</title><link>https://fixture.local/n1</link><description>&lt;p&gt;Brent crude jumped after the remarks&lt;/p&gt;</description></item></channel></rss>'
+    assert adapter.feed_links(summary_feed)==[('Energy talks stall','https://fixture.local/n1',' Brent crude jumped after the remarks ')]
+    with tempfile.TemporaryDirectory() as sd:
+        sb=pathlib.Path(sd); (sb/'research').mkdir(); (sb/'data/sources').mkdir(parents=True)
+        (sb/'research/frontier.json').write_text(json.dumps({'trajectories':[{'id':'T1','state':'ACTIVE','required_evidence':['remarks timing'],'subject_terms':['crude']}]}))
+        (sb/'data/sources/sources_whitelist.csv').write_text('name,type,url,authority_class\nnews,rss,https://fixture.local/news.xml,major-outlet\n')
+        with mock.patch.object(adapter.urllib.request,'urlopen',return_value=FakeResponse(summary_feed)), mock.patch.object(sys,'argv',[str(ADAPTER),'--base',str(sb)]): adapter.main()
+        assert [x['source_title'] for x in read_jsonl(sb/'research/source_candidates.jsonl')]==['Energy talks stall']
         print(json.dumps({'status':'PASS','repository':REPOSITORY,'active_trajectory_requests':1,'saturated_trajectory_requests':0,'candidates':2,'receipts':2,'supporting_and_contrary_leads_preserved':True,'null_result_preserved':True,'duplicate_links_collapsed':True,'native_state_unchanged':True,'github_token_authority':'NONE','credential_authority':'TV/TVC','authority_effect':'NONE'},sort_keys=True))
     return 0
 if __name__=='__main__': raise SystemExit(main())
