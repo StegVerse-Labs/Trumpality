@@ -29,5 +29,7 @@ jobs:
             echo "no changes"
           else
             git commit -m "cooccurrence: updated graph"
+            # Other workflows also persist to this branch; integrate them before pushing.
+            git pull --rebase origin "${GITHUB_REF_NAME}"
             git push origin "HEAD:${GITHUB_REF_NAME}"
           fi

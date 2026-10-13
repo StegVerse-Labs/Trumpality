@@ -40,5 +40,7 @@ jobs:
             echo 'No ingest change to persist.'
           else
             git commit -m 'ingest: persist weekly native source ingest'
+            # Other workflows also persist to this branch; integrate them before pushing.
+            git pull --rebase origin "${GITHUB_REF_NAME}"
             git push origin "HEAD:${GITHUB_REF_NAME}"
           fi
