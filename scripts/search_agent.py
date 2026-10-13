@@ -9,18 +9,16 @@ AI Search Agent (Public OSINT Only)
 """
 
 from __future__ import annotations
-import csv, re, json, pathlib, hashlib, argparse
-from datetime import datetime
+import csv, re, json, pathlib, hashlib, argparse, sys
+import xml.etree.ElementTree as ET
+from datetime import datetime, timezone
+from html.parser import HTMLParser
 from typing import List, Dict
 
-import pandas as pd
-import feedparser
-import requests
-from bs4 import BeautifulSoup
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))
+from core.http_fetch import fetch  # noqa: E402
 
 USER_AGENT = "StegVerse-AI-Agent/1.0 (+public sources only)"
-SESSION = requests.Session()
-SESSION.headers.update({"User-Agent": USER_AGENT, "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"})
 
 def normalize_spaces(s: str) -> str:
     return " ".join((s or "").split())
@@ -31,14 +29,58 @@ def hash_key(*parts) -> str:
         h.update(str(p).encode("utf-8", errors="ignore"))
     return h.hexdigest()[:16]
 
-def safe_get(url: str, timeout: int = 20) -> str:
+def safe_get(url: str, timeout: int = 20, content_type: str = "text/html") -> str:
     try:
-        r = SESSION.get(url, timeout=timeout)
-        if r.status_code == 200 and "text/html" in r.headers.get("content-type",""):
+        r = fetch(url, user_agent=USER_AGENT, timeout=timeout)
+        ctype = {k.lower(): v for k, v in r.headers.items()}.get("content-type", "")
+        if r.status_code == 200 and (not content_type or content_type in ctype):
             return r.text
         return ""
     except Exception:
         return ""
+
+def _local(tag: str) -> str:
+    return tag.rsplit("}", 1)[-1].lower()
+
+def parse_feed(xml_text: str) -> List[Dict[str, str]]:
+    """Return RSS <item> / Atom <entry> objects as dicts of title, summary, link, published, tags."""
+    entries = []
+    root = ET.fromstring(xml_text)
+    for node in root.iter():
+        if _local(node.tag) not in ("item", "entry"):
+            continue
+        entry = {"title": "", "summary": "", "link": "", "published": "", "tags": ""}
+        tags = []
+        for child in node:
+            name, text = _local(child.tag), (child.text or "").strip()
+            if name == "title":
+                entry["title"] = text
+            elif name in ("description", "summary", "content") and not entry["summary"]:
+                entry["summary"] = text
+            elif name == "link":
+                entry["link"] = entry["link"] or text or child.get("href", "")
+            elif name in ("pubdate", "published", "updated") and not entry["published"]:
+                entry["published"] = text
+            elif name == "category":
+                tags.append(text or child.get("term", ""))
+        entry["tags"] = " ".join(tags)
+        entries.append(entry)
+    return entries
+
+class _Anchors(HTMLParser):
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.anchors, self._href, self._text = [], None, []
+    def handle_starttag(self, tag, attrs):
+        if tag == "a":
+            self._href, self._text = dict(attrs).get("href"), []
+    def handle_data(self, data):
+        if self._href is not None:
+            self._text.append(data)
+    def handle_endtag(self, tag):
+        if tag == "a" and self._href is not None:
+            self.anchors.append((normalize_spaces(" ".join(self._text)), self._href))
+            self._href = None
 
 def read_whitelist(path: pathlib.Path) -> List[Dict[str,str]]:
     if not path.exists():
@@ -51,13 +93,8 @@ def search_rss(feeds: List[str], keywords: List[str], limit_per_feed: int = 30) 
     kw = [k.lower() for k in keywords if k]
     for url in feeds:
         try:
-            parsed = feedparser.parse(url)
-            for entry in (parsed.entries[:limit_per_feed] if hasattr(parsed, "entries") else []):
-                text = " ".join([
-                    entry.get("title",""),
-                    entry.get("summary",""),
-                    " ".join([t.get("term","") for t in entry.get("tags", []) if isinstance(t, dict)])
-                ]).lower()
+            for entry in parse_feed(safe_get(url, content_type=""))[:limit_per_feed]:
+                text = " ".join([entry["title"], entry["summary"], entry["tags"]]).lower()
                 if all(k in text for k in kw):
                     results.append({
                         "feed": url,
@@ -76,33 +113,39 @@ def site_keyword_scan(pages: List[str], keywords: List[str], limit_per_site: int
         html = safe_get(base)
         if not html:
             continue
-        soup = BeautifulSoup(html, "html.parser")
-        anchors = soup.find_all("a", href=True)
+        parser = _Anchors()
+        parser.feed(html)
         count = 0
-        for a in anchors:
-            txt = (a.get_text(" ", strip=True) or "").lower()
-            href = a["href"]
+        for title, href in parser.anchors:
+            txt = title.lower()
             if all(k in txt for k in kw) and href.startswith("http"):
-                out.append({"page": base, "title": a.get_text(" ", strip=True), "link": href})
+                out.append({"page": base, "title": title, "link": href})
                 count += 1
                 if count >= limit_per_site:
                     break
     return out
 
-def load_csv(path: pathlib.Path) -> pd.DataFrame:
-    return pd.read_csv(path) if path.exists() else pd.DataFrame()
+def load_csv(path: pathlib.Path) -> tuple[List[str], List[Dict[str, str]]]:
+    if not path.exists():
+        return [], []
+    with path.open(newline="", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        return list(reader.fieldnames or []), list(reader)
 
-def write_csv(path: pathlib.Path, df: pd.DataFrame):
+def write_csv(path: pathlib.Path, fields: List[str], rows: List[Dict[str, str]]):
     path.parent.mkdir(parents=True, exist_ok=True)
-    df.to_csv(path, index=False)
+    with path.open("w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=fields)
+        writer.writeheader()
+        writer.writerows(rows)
 
-def find_pending(df: pd.DataFrame, col: str) -> pd.DataFrame:
-    if df.empty or col not in df.columns:
-        return pd.DataFrame()
-    return df[(df[col].fillna("").str.lower().isin(["", "pending"]))]
+def find_pending(fields: List[str], rows: List[Dict[str, str]], col: str) -> List[Dict[str, str]]:
+    if col not in fields:
+        return []
+    return [r for r in rows if (r.get(col) or "").strip().lower() in ("", "pending")]
 
 def mk_log(log_dir: pathlib.Path) -> pathlib.Path:
-    ts = datetime.utcnow().strftime("%Y%m%dT%H%M%SZ")
+    ts = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
     log_dir.mkdir(parents=True, exist_ok=True)
     return log_dir / f"agent_run_{ts}.jsonl"
 
@@ -110,12 +153,12 @@ def log_line(log_path: pathlib.Path, payload: Dict):
     with log_path.open("a", encoding="utf-8") as f:
         f.write(json.dumps(payload, ensure_ascii=False) + "\n")
 
-def keywords_for_event(row: pd.Series) -> List[str]:
+def keywords_for_event(row: Dict[str, str]) -> List[str]:
     base = " ".join([str(row.get("event","")), str(row.get("location",""))])
     tokens = [t for t in re.split(r"[^A-Za-z0-9]+", base) if len(t) >= 3]
     return list(dict.fromkeys([t.lower() for t in tokens]))[:6]
 
-def keywords_for_person(row: pd.Series) -> List[str]:
+def keywords_for_person(row: Dict[str, str]) -> List[str]:
     base = " ".join([str(row.get("person","")), str(row.get("event","")), str(row.get("location",""))])
     tokens = [t for t in re.split(r"[^A-Za-z0-9]+", base) if len(t) >= 3]
     return list(dict.fromkeys([t.lower() for t in tokens]))[:6]
@@ -139,15 +182,15 @@ def main():
     rss_feeds = [r["url"] for r in wl if (r.get("type","rss").lower() == "rss")]
     site_pages = [r["url"] for r in wl if (r.get("type","rss").lower() != "rss")]
 
-    master = load_csv(MASTER)
-    people = load_csv(PEOPLE)
+    master_fields, master = load_csv(MASTER)
+    people_fields, people = load_csv(PEOPLE)
 
-    pending_events = find_pending(master, "deep_search_event")
-    pending_people = find_pending(people, "deep_search_person")
+    pending_events = find_pending(master_fields, master, "deep_search_event")
+    pending_people = find_pending(people_fields, people, "deep_search_person")
 
     total_hits = 0
 
-    for _, row in pending_events.iterrows():
+    for row in pending_events:
         kws = keywords_for_event(row)
         if not kws:
             continue
@@ -156,10 +199,12 @@ def main():
             total_hits += len(hits)
             notes = normalize_spaces(str(row.get("notes","")))
             append = " Leads: " + "; ".join([h["link"] for h in hits])
-            master.at[row.name, "notes"] = (notes + append).strip()
+            if "notes" not in master_fields:
+                master_fields.append("notes")
+            row["notes"] = (notes + append).strip()
             log_line(log_path, {"type":"event", "base": str(BASE), "keywords": kws, "hits": hits})
 
-    for _, row in pending_people.iterrows():
+    for row in pending_people:
         kws = keywords_for_person(row)
         if not kws:
             continue
@@ -168,13 +213,15 @@ def main():
             total_hits += len(hits)
             notes = normalize_spaces(str(row.get("deep_search_notes","")))
             append = " Leads: " + "; ".join([h["link"] for h in hits])
-            people.at[row.name, "deep_search_notes"] = (notes + append).strip()
+            if "deep_search_notes" not in people_fields:
+                people_fields.append("deep_search_notes")
+            row["deep_search_notes"] = (notes + append).strip()
             log_line(log_path, {"type":"person", "base": str(BASE), "keywords": kws, "hits": hits})
 
-    if not master.empty:
-        write_csv(MASTER, master)
-    if not people.empty:
-        write_csv(PEOPLE, people)
+    if master:
+        write_csv(MASTER, master_fields, master)
+    if people:
+        write_csv(PEOPLE, people_fields, people)
 
     log_line(log_path, {"summary": {"base": str(BASE), "total_hits": total_hits}})
 
