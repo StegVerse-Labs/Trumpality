@@ -4,6 +4,9 @@
 Writes append-only lead-only candidate packets. Native Trumpality records and evaluation
 labels are never mutated. Candidate packets conform to ERL transport v1; applicable
 credential authority remains TV/TVC and GitHub token authority is NONE.
+
+Every cycle is an attempted state transition: it appends one disposition record (ALLOW,
+DENY or FAIL_CLOSED) to research/transition_dispositions.jsonl.
 """
 from __future__ import annotations
 import argparse,csv,hashlib,json,pathlib,re,time,urllib.error,urllib.request
@@ -11,8 +14,11 @@ from datetime import datetime,timezone
 from html.parser import HTMLParser
 from urllib.parse import urljoin,urlsplit
 REPOSITORY='StegVerse-Labs/Trumpality';HOST_SPACING=3;RETRY_DELAY=10;UA='StegVerse-ERL-Trumpality/1.1'
+OWNING_GOAL='StegVerse-Labs/Trumpality#8';RETRY_ENTRYPOINT='.github/workflows/erl-active-research.yml -> python scripts/erl_research_agent.py'
+DISPOSITION_SCHEMA='stegverse.trumpality.erl_acquisition_transition_disposition.v1'
 def now():return datetime.now(timezone.utc).isoformat()
 def sid(*p):return hashlib.sha256('|'.join(map(str,p)).encode()).hexdigest()[:24]
+def file_sha(path):return hashlib.sha256(path.read_bytes()).hexdigest() if path.exists() else None
 def append(path,obj,dry):
     if dry:return
     path.parent.mkdir(parents=True,exist_ok=True)
@@ -22,6 +28,12 @@ def load(path):return json.loads(path.read_text(encoding='utf-8')) if path.exist
 def sources(path):
     if not path.exists():return []
     with path.open(newline='',encoding='utf-8') as f:return list(csv.DictReader(f))
+def dispose(base,dry,cycle_id,predecessor,disposition,**fields):
+    record={'schema':DISPOSITION_SCHEMA,'transition_id':'TRN-'+sid(cycle_id,disposition),'cycle_id':cycle_id,'repository':REPOSITORY,'owning_existing_goal':OWNING_GOAL,'requested_action':'ACQUIRE_TRAJECTORY_SCOPED_SOURCE_CANDIDATES','predecessor':predecessor,'proposed_successor':'this cycle appended to research/research_receipts.jsonl and research/source_candidates.jsonl','disposition':disposition,'consequence_committed':disposition=='ALLOW','observed_at':now(),'evaluation_authority_effect':'NONE'}
+    record.update(fields);append(base/'research/transition_dispositions.jsonl',record,dry);return record
+def fail_closed(base,dry,cycle_id,predecessor,code,predicate,repair,message):
+    dispose(base,dry,cycle_id,predecessor,'FAIL_CLOSED',failure_code=code,failed_predicate=predicate,required_evidence_or_repair=repair,retry_entrypoint=RETRY_ENTRYPOINT,next_attempt='rerun retry_entrypoint after the repair')
+    raise RuntimeError('FAIL_CLOSED: '+message)
 class Links(HTMLParser):
     def __init__(self):super().__init__();self.links=[];self.href=None;self.txt=[]
     def handle_starttag(self,tag,attrs):
@@ -83,13 +95,18 @@ def active(base):
 def packet(req,src,title,link,listing_sha256=None,receipt_id=None):return {'schema':'stegverse.erl.research_source_candidate.v1','candidate_id':'SRC-'+sid(req.get('request_id'),link),'repository':REPOSITORY,'trajectory_ids':req.get('trajectory_ids',[]),'acquisition_request_id':req.get('request_id'),'query':req.get('query',''),'source_url':link,'source_title':title,'retrieved_at':now(),'source_class':src.get('authority_class') or src.get('type') or 'unknown','authority_proximity':'unknown','content_sha256':None,'listing_response_sha256':listing_sha256,'custody_pointer':receipt_id,'verification_state':'UNVERIFIED','evidence_role':'lead-only','native_records_mutated':False,'evaluation_changed':False,'discovered_by':'scripts/erl_research_agent.py','transport':{'source_repository':REPOSITORY,'destination_repository':'StegVerse-Labs/Executive_Rhetoric_Ledger','authority_effect':'NONE','credential_authority':'TV/TVC','github_token_authority':'NONE'}}
 def main():
     p=argparse.ArgumentParser();p.add_argument('--base',default='.');p.add_argument('--dry-run',action='store_true');a=p.parse_args();b=pathlib.Path(a.base).resolve();R=active(b);S=sources(b/'data/sources/sources_whitelist.csv');count=0;seen=set()
-    if R and not S:
-        raise RuntimeError('FAIL_CLOSED: source inventory missing or empty; acquisition not executed')
-    if R and not any(urlsplit((src.get('url') or '').strip()).scheme in {'http','https'} and urlsplit((src.get('url') or '').strip()).hostname for src in S):
-        raise RuntimeError('FAIL_CLOSED: source inventory has no usable HTTP(S) endpoint; acquisition not executed')
+    receipts_path=b/'research/research_receipts.jsonl';candidates_path=b/'research/source_candidates.jsonl'
+    prior_receipts=jsonl(receipts_path)
     # Keep scan evidence per cycle even when the same source body is retrieved again.
-    cycle_id=sid(now(),len(jsonl(b/'research/research_receipts.jsonl')))
-    existing_candidates={r.get('candidate_id') for r in jsonl(b/'research/source_candidates.jsonl')}
+    cycle_id=sid(now(),len(prior_receipts))
+    predecessor={'research_receipts_sha256':file_sha(receipts_path),'source_candidates_sha256':file_sha(candidates_path),'research_receipt_count':len(prior_receipts)}
+    if not R:
+        dispose(b,a.dry_run,cycle_id,predecessor,'DENY',failure_code='NO_ACTIVE_ACQUISITION_REQUESTS',failed_predicate='research/frontier.json or research/acquisition_requests.jsonl yields at least one OPEN/ACTIVE/RETRY request',required_evidence_or_repair='activate a frontier trajectory or append an ACTIVE acquisition request',retry_entrypoint=RETRY_ENTRYPOINT,next_attempt='rerun retry_entrypoint after a request is active')
+    if R and not S:
+        fail_closed(b,a.dry_run,cycle_id,predecessor,'SOURCE_INVENTORY_MISSING','data/sources/sources_whitelist.csv exists and lists at least one source','add governed public sources to data/sources/sources_whitelist.csv','source inventory missing or empty; acquisition not executed')
+    if R and not any(urlsplit((src.get('url') or '').strip()).scheme in {'http','https'} and urlsplit((src.get('url') or '').strip()).hostname for src in S):
+        fail_closed(b,a.dry_run,cycle_id,predecessor,'SOURCE_INVENTORY_UNUSABLE','at least one source in data/sources/sources_whitelist.csv has an HTTP(S) URL with a host','correct or replace the source URLs in data/sources/sources_whitelist.csv','source inventory has no usable HTTP(S) endpoint; acquisition not executed')
+    existing_candidates={r.get('candidate_id') for r in jsonl(candidates_path)}
     successful_scans=0;fetched={};last_hit={}
     for src in S:
         u=(src.get('url') or '').strip()
@@ -116,7 +133,7 @@ def main():
             if u not in fetched:continue
             digest,links,error=fetched[u]
             if error:
-                append(b/'research/research_receipts.jsonl',{'receipt_id':'RSRCH-'+sid(cycle_id,req.get('request_id'),u,'FAILED'),'request_id':req.get('request_id'),'trajectory_ids':req.get('trajectory_ids',[]),'source_scanned':u,'retrieved_at':now(),'result':'FAILED','error':error,'native_records_mutated':False,'evaluation_changed':False},a.dry_run)
+                append(receipts_path,{'receipt_id':'RSRCH-'+sid(cycle_id,req.get('request_id'),u,'FAILED'),'request_id':req.get('request_id'),'trajectory_ids':req.get('trajectory_ids',[]),'source_scanned':u,'retrieved_at':now(),'result':'FAILED','error':error,'native_records_mutated':False,'evaluation_changed':False},a.dry_run)
                 continue
             hits=[]
             for title,href,*summary in links:
@@ -131,12 +148,15 @@ def main():
             for title,link in hits[:10]:
                 candidate=packet(req,src,title,link,digest,receipt_id)
                 if candidate['candidate_id'] in existing_candidates:continue
-                append(b/'research/source_candidates.jsonl',candidate,a.dry_run)
+                append(candidates_path,candidate,a.dry_run)
                 existing_candidates.add(candidate['candidate_id'])
                 count+=1
             successful_scans+=1
-            append(b/'research/research_receipts.jsonl',{'receipt_id':receipt_id,'cycle_id':cycle_id,'request_id':req.get('request_id'),'trajectory_ids':req.get('trajectory_ids',[]),'query_terms':terms,'source_scanned':u,'retrieved_at':now(),'response_hash':digest,'hits':len(hits),'result':'NO_UPDATE' if not hits else 'CANDIDATES_IDENTIFIED','native_records_mutated':False,'evaluation_changed':False},a.dry_run)
+            append(receipts_path,{'receipt_id':receipt_id,'cycle_id':cycle_id,'request_id':req.get('request_id'),'trajectory_ids':req.get('trajectory_ids',[]),'query_terms':terms,'source_scanned':u,'retrieved_at':now(),'response_hash':digest,'hits':len(hits),'result':'NO_UPDATE' if not hits else 'CANDIDATES_IDENTIFIED','native_records_mutated':False,'evaluation_changed':False},a.dry_run)
+    failed_sources=sorted(u for u,v in fetched.items() if v[2])
     if R and successful_scans==0:
-        raise RuntimeError('FAIL_CLOSED: all configured source scans failed; inspect appended FAILED receipts')
+        fail_closed(b,a.dry_run,cycle_id,predecessor,'ALL_SOURCE_SCANS_FAILED','at least one configured source returns a readable response','inspect the FAILED receipts appended this cycle (error per source) and repair or replace those sources: '+', '.join(failed_sources),'all configured source scans failed; inspect appended FAILED receipts')
+    if R:
+        dispose(b,a.dry_run,cycle_id,predecessor,'ALLOW',evidence={'requests':len(R),'sources':len(S),'sources_fetched':len(fetched)-len(failed_sources),'failed_sources':failed_sources,'scans':successful_scans,'candidates_appended':count,'research_receipts_sha256_after':file_sha(receipts_path),'source_candidates_sha256_after':file_sha(candidates_path)})
     print(json.dumps({'repository':REPOSITORY,'requests':len(R),'sources':len(S),'sources_fetched':sum(1 for v in fetched.values() if not v[2]),'scans':successful_scans,'candidates':count,'dry_run':a.dry_run,'native_records_mutated':False,'evaluation_changed':False,'candidate_schema':'stegverse.erl.research_source_candidate.v1','credential_authority':'TV/TVC','github_token_authority':'NONE'},sort_keys=True))
 if __name__=='__main__':main()
