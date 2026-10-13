@@ -18,3 +18,6 @@ SRC-NYT-POLITICS,The New York Times Politics RSS,rss,https://rss.nytimes.com/ser
 SRC-GUARDIAN-US,The Guardian US News RSS,rss,https://www.theguardian.com/us-news/rss,major-outlet,"Major outlet; FREE-DOM governed outlet family"
 SRC-WAPO-BUSINESS,The Washington Post Business RSS,rss,https://feeds.washingtonpost.com/rss/business,major-outlet,"Major outlet; FREE-DOM governed outlet family"
 SRC-MARKETWATCH-TOP,MarketWatch Top Stories RSS,rss,https://feeds.content.dowjones.io/public/rss/mw_topstories,major-outlet,"Market event coverage for rhetoric-market windows"
+SRC-COINDESK,CoinDesk RSS,rss,https://www.coindesk.com/arc/outboundfeeds/rss/?outputType=xml,crypto-trade-press,"Lead-only trade press for token, stablecoin and bridge-asset trajectories"
+SRC-COINTELEGRAPH,Cointelegraph RSS,rss,https://cointelegraph.com/rss,crypto-trade-press,"Lead-only trade press for token, exchange-counterparty and bridge-asset trajectories"
+SRC-DECRYPT,Decrypt RSS,rss,https://decrypt.co/feed,crypto-trade-press,"Lead-only trade press for token, stablecoin and bridge-asset trajectories"
