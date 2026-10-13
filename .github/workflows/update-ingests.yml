@@ -38,9 +38,10 @@ jobs:
           print("DB initialized")
           PY
 
+      # The ingest module imports `core.*`, so it must run as a module from the repository root.
       - name: Ingest seeds
         run: |
-          python core/ingest_pipeline/url_list_ingest.py \
+          python -m core.ingest_pipeline.url_list_ingest \
             --subject "Donald J. Trump" \
             --topic_cluster general \
             --urls seeds/sources.urls.txt
@@ -52,6 +53,12 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "actions@github.com"
-          git add data/processed data/receipts datasets/exports
-          git commit -m "manual ingest: update records, exports, and receipts" || echo "no changes"
-          git push
+          for p in data/processed data/receipts datasets/exports; do
+            [ -e "$p" ] && git add "$p"
+          done
+          if git diff --cached --quiet; then
+            echo "no changes"
+          else
+            git commit -m "manual ingest: update records, exports, and receipts"
+            git push origin "HEAD:${GITHUB_REF_NAME}"
+          fi
