@@ -65,7 +65,8 @@ def matches(terms,hay,subject=None):
     if subject:
         # A lead must name the trajectory's subject and touch the evidence sought.
         evidence=[t for t in terms if t not in subject]
-        return any(re.search(r'(?<![a-z0-9])'+re.escape(s)+r'(?![a-z0-9])',hay) for s in subject) and (not evidence or any(t in hay for t in evidence))
+        # Evidence terms match at a word start ("wallet" matches "wallets", "graph" does not match "photographer").
+        return any(re.search(r'(?<![a-z0-9])'+re.escape(s)+r'(?![a-z0-9])',hay) for s in subject) and (not evidence or any(re.search(r'(?<![a-z0-9])'+re.escape(t),hay) for t in evidence))
     # Require two distinct terms when the query offers two, so one generic word cannot create a lead.
     return bool(terms) and sum(t in hay for t in terms)>=min(2,len(terms))
 def active(base):
