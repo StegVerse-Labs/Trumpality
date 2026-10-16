@@ -1,0 +1,34 @@
+{
+  "admissibility_request": "context-only",
+  "claimed_use": "context-only",
+  "content_summary": "Office of Public Affairs |  Office of Public Affairs",
+  "ingestion_date": "2026-10-16T12:54:01.039006+00:00",
+  "ingestion_id": "TRUMPALITY-324af305350aacc0c563",
+  "ledger_relevance": "Candidate contextual source concerning the monitored public figure; no claim, action, causation, or influence relationship is asserted by this export.",
+  "notes": "native_record_id=9fa323ee-897b-415a-8f76-5fda9bb52dbe; native_category=source_candidate; native_verification=unverified; export does not confer evidentiary standing",
+  "object_class": "source_receipt",
+  "producer_commit": "b361508fa2f0417c2a5a254db41982b43c9896e4",
+  "producer_path": "data/processed/records.sqlite#records/9fa323ee-897b-415a-8f76-5fda9bb52dbe",
+  "producer_repo": "StegVerse-Labs/Trumpality",
+  "related_topic_id": "donald-j-trump-general",
+  "related_topic_name": "Donald J. Trump \u2014 general monitored sources",
+  "review_status": "pending",
+  "source_receipts": [
+    {
+      "access_date": "2026-10-16T12:54:00.843996+00:00",
+      "admissibility_use": "admissible-for-context-only",
+      "archive_url": "",
+      "confidence": "low",
+      "evidence_role": "context-only-source",
+      "institutional_proximity": "unknown-proximity",
+      "notes": "Native Trumpality source candidate. Source role, institutional proximity, claim relationship, and factual use require independent ledger review.",
+      "publication_date": "",
+      "red_flags": [],
+      "source_id": "trumpality:9fa323ee-897b-415a-8f76-5fda9bb52dbe",
+      "source_type": "unknown-source-type",
+      "title": "Office of Public Affairs |  Office of Public Affairs",
+      "url": "https://www.justice.gov/opa",
+      "verification_status": "unverified"
+    }
+  ]
+}
