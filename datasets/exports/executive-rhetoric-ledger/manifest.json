@@ -6,9 +6,9 @@
     "may_promote": false,
     "requires_ledger_review": true
   },
-  "generated_at": "2026-10-20T13:10:52.723840Z",
+  "generated_at": "2026-10-23T13:00:43.649018Z",
   "manifest_version": "1.0.0",
-  "producer_commit": "84ab9fe51df90c3d14d24a502c3f5c81b7a4e22c",
+  "producer_commit": "1d45b3fdfe4fdc1372bf62ac8e93de3968f992d6",
   "producer_repository": "StegVerse-Labs/Trumpality",
   "records": [
     {
@@ -108,6 +108,19 @@
         "may_promote": false
       },
       "corrects": [],
+      "ingestion_id": "TRUMPALITY-4127209a08620c5efb6c",
+      "path": "datasets/exports/executive-rhetoric-ledger/TRUMPALITY-4127209a08620c5efb6c.json",
+      "producer_commit": "1d45b3fdfe4fdc1372bf62ac8e93de3968f992d6",
+      "record_updated_at": "2026-10-23T13:00:43.596563+00:00",
+      "sha256": "80dd8deb653516e3660503a16215f618e579eaee52e4413ae1b9c1440da5bbc8",
+      "supersedes": []
+    },
+    {
+      "authority": {
+        "candidate_only": true,
+        "may_promote": false
+      },
+      "corrects": [],
       "ingestion_id": "TRUMPALITY-47ef77d18c8d13aa4357",
       "path": "datasets/exports/executive-rhetoric-ledger/TRUMPALITY-47ef77d18c8d13aa4357.json",
       "producer_commit": "b361508fa2f0417c2a5a254db41982b43c9896e4",
@@ -186,6 +199,32 @@
         "may_promote": false
       },
       "corrects": [],
+      "ingestion_id": "TRUMPALITY-c9b13c09b03021ab786a",
+      "path": "datasets/exports/executive-rhetoric-ledger/TRUMPALITY-c9b13c09b03021ab786a.json",
+      "producer_commit": "1d45b3fdfe4fdc1372bf62ac8e93de3968f992d6",
+      "record_updated_at": "2026-10-23T13:00:43.595837+00:00",
+      "sha256": "d19e445b57a3ecf54a1c74f587146be9a89ee23dfc9771542608e82227ca6345",
+      "supersedes": []
+    },
+    {
+      "authority": {
+        "candidate_only": true,
+        "may_promote": false
+      },
+      "corrects": [],
+      "ingestion_id": "TRUMPALITY-cabb797bc61003d79bd6",
+      "path": "datasets/exports/executive-rhetoric-ledger/TRUMPALITY-cabb797bc61003d79bd6.json",
+      "producer_commit": "1d45b3fdfe4fdc1372bf62ac8e93de3968f992d6",
+      "record_updated_at": "2026-10-23T13:00:43.596753+00:00",
+      "sha256": "7fd2dcf5469ad252321e9ef76c2aca6dedffd96ee8d8e0c238681ac706f74dc8",
+      "supersedes": []
+    },
+    {
+      "authority": {
+        "candidate_only": true,
+        "may_promote": false
+      },
+      "corrects": [],
       "ingestion_id": "TRUMPALITY-d07e0e228f781da19ba3",
       "path": "datasets/exports/executive-rhetoric-ledger/TRUMPALITY-d07e0e228f781da19ba3.json",
       "producer_commit": "b361508fa2f0417c2a5a254db41982b43c9896e4",
@@ -199,11 +238,37 @@
         "may_promote": false
       },
       "corrects": [],
+      "ingestion_id": "TRUMPALITY-d58ab4ea4a115c3aede9",
+      "path": "datasets/exports/executive-rhetoric-ledger/TRUMPALITY-d58ab4ea4a115c3aede9.json",
+      "producer_commit": "1d45b3fdfe4fdc1372bf62ac8e93de3968f992d6",
+      "record_updated_at": "2026-10-23T13:00:43.596116+00:00",
+      "sha256": "a921779263074ba0c4ccecc1e976f850ae151891e5509959fc2a57acae61fb0c",
+      "supersedes": []
+    },
+    {
+      "authority": {
+        "candidate_only": true,
+        "may_promote": false
+      },
+      "corrects": [],
       "ingestion_id": "TRUMPALITY-d8e7173ebc943fe3b72f",
       "path": "datasets/exports/executive-rhetoric-ledger/TRUMPALITY-d8e7173ebc943fe3b72f.json",
       "producer_commit": "84ab9fe51df90c3d14d24a502c3f5c81b7a4e22c",
       "record_updated_at": "2026-10-20T13:10:52.684454+00:00",
       "sha256": "7d215af0dfe4792ed7cd423971089d0e699785a579df5a115f0507f0f48af203",
+      "supersedes": []
+    },
+    {
+      "authority": {
+        "candidate_only": true,
+        "may_promote": false
+      },
+      "corrects": [],
+      "ingestion_id": "TRUMPALITY-dcbdf8720fffedc7c1ad",
+      "path": "datasets/exports/executive-rhetoric-ledger/TRUMPALITY-dcbdf8720fffedc7c1ad.json",
+      "producer_commit": "1d45b3fdfe4fdc1372bf62ac8e93de3968f992d6",
+      "record_updated_at": "2026-10-23T13:00:43.596318+00:00",
+      "sha256": "1f147f002de44863368676fc0cdc954068de9fdd14fd23e76fa1cde900eff49f",
       "supersedes": []
     }
   ]
