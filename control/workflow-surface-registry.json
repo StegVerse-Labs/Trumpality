@@ -1,0 +1,185 @@
+{
+  "schema": "stegverse.workflow-surface-registry/v1",
+  "goal_id": "G17-WORKFLOW-SURFACE-MINIMIZATION",
+  "repository": "StegVerse-Labs/Trumpality",
+  "policy_issue": "StegVerse-Labs/.github#167, #168; StegVerse-org/.github#166",
+  "preferred_repository_workflow_count_max": 2,
+  "exception_repository_workflow_count_max": 3,
+  "credential_authority": "the SKAP Vault inside KV is the only PII and credential store for every user, including the StegVerse ecosystem's own; no secret or token is referenced, introduced or moved by this fold",
+  "invariants": [
+    "Every workflow file is registered in surfaces[]; an unregistered or changed one fails closed (tests/test_workflow_surface_registry.py).",
+    "A new check is a group in tools/tasks/task_catalog.json, never a new workflow file.",
+    "The stable dispatcher carries no workflow_dispatch, schedule, repository_dispatch, issues or workflow_run trigger; a kept surface is pinned by sha256 and unchanged by the fold.",
+    "G17 documented exception: above 2 workflow files, every kept surface other than the dispatcher carries an exception record (lifecycle and technical-necessity justification); the count never exceeds exception_repository_workflow_count_max (3)."
+  ],
+  "unregistered_workflow_outcome": {
+    "disposition": "FAIL_CLOSED",
+    "failure_code": "UNREGISTERED_WORKFLOW_SURFACE",
+    "failed_predicate": "EVERY_WORKFLOW_FILE_IS_REGISTERED",
+    "required_evidence_or_repair": "register the file in control/workflow-surface-registry.json surfaces[] or fold it into tools/tasks/task_catalog.json",
+    "retry_entrypoint": "tests/test_workflow_surface_registry.py",
+    "owning_existing_goal": "G17-WORKFLOW-SURFACE-MINIMIZATION (StegVerse-Labs/.github#167/#168); StegVerse-org/.github#166",
+    "next_attempt": "the next pull request touching .github/workflows/"
+  },
+  "surfaces": [
+    {
+      "path": ".github/workflows/validation-dispatcher.yml",
+      "classification": "KEEP_STABLE_DISPATCHER",
+      "triggers": [
+        "pull_request",
+        "push"
+      ],
+      "permissions": {
+        "contents": "read"
+      }
+    },
+    {
+      "path": ".github/workflows/archive-and-monitor.yml",
+      "classification": "KEEP_EXISTING_SURFACE_UNCHANGED",
+      "triggers": [
+        "workflow_dispatch",
+        "schedule",
+        "push"
+      ],
+      "permissions": {
+        "contents": "write"
+      },
+      "reason": "KEEP_EXISTING_SURFACE_UNCHANGED (documented exception, destination-owned writer): contents: write; it runs the native archive/monitor scripts and pushes their output (latest schedule runs green 2026-10-13..10-23). research/conformance.json scheduled_ingest names this path. A run block in the read-only dispatcher cannot carry that write; its existing triggers are byte-unchanged.",
+      "verbatim_sha256": "600c81a030b4183bc3287c699a38bbcd07c3555fb0e8e8f4c351e3f939cf57d9",
+      "exception": {
+        "lifecycle": "destination-owned writer (contents: write)",
+        "justification": "KEEP_EXISTING_SURFACE_UNCHANGED (documented exception, destination-owned writer): contents: write; it runs the native archive/monitor scripts and pushes their output (latest schedule runs green 2026-10-13..10-23). research/conformance.json scheduled_ingest names this path. A run block in the read-only dispatcher cannot carry that write; its existing triggers are byte-unchanged.",
+        "within_exception_ceiling": true
+      }
+    },
+    {
+      "path": ".github/workflows/consume-erl-acknowledgments.yml",
+      "classification": "KEEP_EXISTING_SURFACE_UNCHANGED",
+      "triggers": [
+        "schedule",
+        "workflow_dispatch",
+        "push"
+      ],
+      "permissions": {
+        "contents": "write"
+      },
+      "reason": "KEEP_EXISTING_SURFACE_UNCHANGED (documented exception, destination-owned writer): contents: write; it consumes ERL acknowledgments and pushes the result (green through 2026-10-25). Existing triggers byte-unchanged.",
+      "verbatim_sha256": "58ecd9fda4dff284ac0033d8bfeafc79250901c3584377b2232f6401599a11df",
+      "exception": {
+        "lifecycle": "destination-owned writer (contents: write)",
+        "justification": "KEEP_EXISTING_SURFACE_UNCHANGED (documented exception, destination-owned writer): contents: write; it consumes ERL acknowledgments and pushes the result (green through 2026-10-25). Existing triggers byte-unchanged.",
+        "within_exception_ceiling": true
+      }
+    },
+    {
+      "path": ".github/workflows/cooccurrence.yml",
+      "classification": "KEEP_EXISTING_SURFACE_UNCHANGED",
+      "triggers": [
+        "schedule",
+        "workflow_dispatch"
+      ],
+      "permissions": {
+        "contents": "write"
+      },
+      "reason": "KEEP_EXISTING_SURFACE_UNCHANGED (documented exception, destination-owned writer): contents: write; it computes co-occurrence and pushes the result (green 2026-10-13..10-23). Unlike the Maxwellality/Epsteinality/Giuffre-ality copies it runs native scripts (no StegVerse/StegVerse-Core call). Existing triggers byte-unchanged.",
+      "verbatim_sha256": "f690c12468a752c30e52c508e4a381a373f5435a7f24e2d3b50a418d9302b219",
+      "exception": {
+        "lifecycle": "destination-owned writer (contents: write)",
+        "justification": "KEEP_EXISTING_SURFACE_UNCHANGED (documented exception, destination-owned writer): contents: write; it computes co-occurrence and pushes the result (green 2026-10-13..10-23). Unlike the Maxwellality/Epsteinality/Giuffre-ality copies it runs native scripts (no StegVerse/StegVerse-Core call). Existing triggers byte-unchanged.",
+        "within_exception_ceiling": true
+      }
+    },
+    {
+      "path": ".github/workflows/erl-active-research.yml",
+      "classification": "KEEP_EXISTING_SURFACE_UNCHANGED",
+      "triggers": [
+        "schedule",
+        "workflow_dispatch"
+      ],
+      "permissions": {
+        "contents": "write"
+      },
+      "reason": "KEEP_EXISTING_SURFACE_UNCHANGED (documented exception, destination-owned writer): contents: write; scripts/erl_research_agent.py L17 names it as RETRY_ENTRYPOINT (owning goal StegVerse-Labs/Trumpality#8); green through 2026-10-25. Existing triggers byte-unchanged.",
+      "verbatim_sha256": "2ba339dcf3ec9c4d7960795d8f0ad7c3c94b85a10e6a7192e3d7df4c1a3e8e88",
+      "exception": {
+        "lifecycle": "destination-owned writer (contents: write)",
+        "justification": "KEEP_EXISTING_SURFACE_UNCHANGED (documented exception, destination-owned writer): contents: write; scripts/erl_research_agent.py L17 names it as RETRY_ENTRYPOINT (owning goal StegVerse-Labs/Trumpality#8); green through 2026-10-25. Existing triggers byte-unchanged.",
+        "within_exception_ceiling": true
+      }
+    },
+    {
+      "path": ".github/workflows/weekly-ingest.yml",
+      "classification": "KEEP_EXISTING_SURFACE_UNCHANGED",
+      "triggers": [
+        "workflow_dispatch",
+        "schedule"
+      ],
+      "permissions": {
+        "contents": "write"
+      },
+      "reason": "KEEP_EXISTING_SURFACE_UNCHANGED (documented exception, destination-owned writer): contents: write; native weekly ingest (green 2026-10-19); research/conformance.json scheduled_ingest and docs/OSINT_PROJECTION_MIRROR_HANDOFF.md L103 name this path. Existing triggers byte-unchanged.",
+      "verbatim_sha256": "d69d38b2063b32528133fdaea6737bcda19be15df2e4e32055c1093f72e29078",
+      "exception": {
+        "lifecycle": "destination-owned writer (contents: write)",
+        "justification": "KEEP_EXISTING_SURFACE_UNCHANGED (documented exception, destination-owned writer): contents: write; native weekly ingest (green 2026-10-19); research/conformance.json scheduled_ingest and docs/OSINT_PROJECTION_MIRROR_HANDOFF.md L103 name this path. Existing triggers byte-unchanged.",
+        "within_exception_ceiling": true
+      }
+    }
+  ],
+  "folded": [
+    {
+      "workflow": ".github/workflows/update-ingests.yml",
+      "name": "manual-native-ingest-and-export",
+      "triggers_before": [
+        "workflow_dispatch"
+      ],
+      "classification": "ELIMINATE",
+      "status": "DONE",
+      "reason": "Its only trigger is workflow_dispatch (dispatch-only); its last runs (schedule, before that trigger was removed) all failed, the latest on 2026-01-19. This lane carries no dispatch. The ingest data it wrote is untouched; the workflow is kept verbatim as a record.",
+      "verbatim_record": "tools/tasks/folded/update-ingests.yml",
+      "verbatim_sha256": "bb399795bc65e38e297ca05ac2eb9047765acacf7f1029ec5f1d371d28700566"
+    },
+    {
+      "workflow": ".github/workflows/test-readiness.yml",
+      "name": "Test Readiness",
+      "triggers_before": [
+        "push",
+        "pull_request",
+        "workflow_dispatch"
+      ],
+      "classification": "CONSOLIDATE_INTO_STABLE_DISPATCHER",
+      "status": "DONE",
+      "catalog_groups": [
+        "test-readiness.repo-smoke"
+      ],
+      "verbatim_record": "tools/tasks/folded/test-readiness.yml",
+      "verbatim_sha256": "cb6e99eeba580a369c91564142f97f85fd518d89f5f04b4c6bcd84ec49ba58db"
+    },
+    {
+      "workflow": ".github/workflows/validate-current-state-evaluation.yml",
+      "name": "Validate Current State Evaluation",
+      "triggers_before": [
+        "push",
+        "pull_request",
+        "workflow_dispatch"
+      ],
+      "classification": "CONSOLIDATE_INTO_STABLE_DISPATCHER",
+      "status": "DONE",
+      "catalog_groups": [
+        "validate-current-state-evaluation.validate"
+      ],
+      "verbatim_record": "tools/tasks/folded/validate-current-state-evaluation.yml",
+      "verbatim_sha256": "4fe1922bb5470228fd052b15336bfc6a89ede44492d513565f8749ac8ad61003"
+    }
+  ],
+  "ceiling_fail_closed": {
+    "disposition": "FAIL_CLOSED",
+    "workflow_count": 6,
+    "failure_code": "G17_CONTRACT_FLOOR_ABOVE_EXCEPTION_CEILING",
+    "failed_predicate": "workflow_count <= exception_repository_workflow_count_max (3)",
+    "required_evidence_or_repair": "a documented single-writer design that carries the five destination-owned writers (archive-and-monitor, consume-erl-acknowledgments, cooccurrence, erl-active-research, weekly-ingest; each contents: write) as one surface, or a contract change re-pointing research/conformance.json and scripts/erl_research_agent.py, then folding them",
+    "retry_entrypoint": "tests/test_workflow_surface_registry.py",
+    "owning_existing_goal": "G17-WORKFLOW-SURFACE-MINIMIZATION (StegVerse-Labs/.github#167/#168); StegVerse-org/.github#166",
+    "next_attempt": "the next pull request touching .github/workflows/ or those contracts"
+  }
+}
