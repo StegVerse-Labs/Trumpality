@@ -1,0 +1,1 @@
+python scripts/validate_current_state_evaluation.py

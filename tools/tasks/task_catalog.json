@@ -1,0 +1,125 @@
+{
+ "schema": "stegverse.task-catalog/v1",
+ "repository": "StegVerse-Labs/Trumpality",
+ "goal_id": "G17-WORKFLOW-SURFACE-MINIMIZATION",
+ "authority": "Rigel 2026-10-24 retroactive G17 enforcement (StegVerse-org/.github#166); pattern StegVerse-Labs/StegDB#60 (eab2e773)",
+ "dispatcher": ".github/workflows/validation-dispatcher.yml",
+ "runner": "tools/tasks/run_catalog.py",
+ "runner_source": "StegVerse-Labs/StegDB tools/tasks/run_catalog.py @ eab2e773271f3e63466a710f1b4555f677882848 (sha256 f741f30557888fd8e4852a52adfc65736a08898d49ade7519f6bcc2672921e9b), copied unmodified",
+ "rule": "Every check a folded workflow job ran is one group here; its step bodies are the original run blocks byte for byte, pinned by sha256, except the repairs listed. A new check is a new group (or a step in one), never a new workflow file.",
+ "path_filters": "Dropped: every group runs on every pull_request and push to main (a superset of the original path-filtered runs). workflow_dispatch/schedule triggers are not carried (no manual dispatch, no cron).",
+ "repairs": [
+  "test-readiness.repo-smoke used to run on every push, pull request and dispatch; validate-current-state-evaluation on path-filtered push/pull_request and dispatch. As catalog groups both run on pull requests and pushes to main. Dispatch triggers are not carried.",
+  "The historical records coordination/current-state-validation-pending.json, current-state-evaluation-validator-observer.json, current-state-evaluation-activation-receipt.json and person-event-evaluation-session-handoff.md, and docs/OSINT_PROJECTION_MIRROR_HANDOFF.md L26, name .github/workflows/validate-current-state-evaluation.yml. No code or test reads them; they are stored records and are not edited. The folded file is at tools/tasks/folded/validate-current-state-evaluation.yml with its sha256."
+ ],
+ "folded_from_commit": "f286776",
+ "groups": [
+  {
+   "id": "test-readiness.repo-smoke",
+   "source": {
+    "workflow": ".github/workflows/test-readiness.yml",
+    "workflow_name": "Test Readiness",
+    "job": "repo-smoke",
+    "job_name": null,
+    "commit": "f286776",
+    "triggers_before": [
+     "push",
+     "pull_request",
+     "workflow_dispatch"
+    ],
+    "permissions_before": {
+     "contents": "read"
+    }
+   },
+   "events": [
+    "pull_request",
+    "push"
+   ],
+   "env": {},
+   "steps": [
+    {
+     "name": "ERL research adapter deterministic conformance",
+     "run_file": "tools/tasks/steps/test-readiness.repo-smoke/01-erl-research-adapter-deterministic-conformance.sh",
+     "run_sha256": "2ae1e9f6cdcb3f479e28912ba49b3318cb5d08b4aaecdad5e34120e9784303be"
+    },
+    {
+     "name": "Standard-library ingest and archival tests",
+     "run_file": "tools/tasks/steps/test-readiness.repo-smoke/02-standard-library-ingest-and-archival-tests.sh",
+     "run_sha256": "92b0c674a9e8d8aa20adff3d3c71afae7ca42972a0de058b21c544b36bbcc1d3"
+    },
+    {
+     "name": "Baseline repository smoke test",
+     "run_file": "tools/tasks/steps/test-readiness.repo-smoke/03-baseline-repository-smoke-test.sh",
+     "run_sha256": "b9ca9ed2406c9532b40bd3c46ae13c4eb0924562a3232a0b9308a04329377ec1"
+    }
+   ],
+   "artifacts": [],
+   "runner": {
+    "fetch_depth": "1",
+    "persist_credentials": "true",
+    "timeout_minutes": 5,
+    "python_version": "3.11"
+   }
+  },
+  {
+   "id": "validate-current-state-evaluation.validate",
+   "source": {
+    "workflow": ".github/workflows/validate-current-state-evaluation.yml",
+    "workflow_name": "Validate Current State Evaluation",
+    "job": "validate",
+    "job_name": null,
+    "commit": "f286776",
+    "triggers_before": [
+     "push",
+     "pull_request",
+     "workflow_dispatch"
+    ],
+    "permissions_before": {
+     "contents": "read"
+    }
+   },
+   "events": [
+    "pull_request",
+    "push"
+   ],
+   "env": {},
+   "steps": [
+    {
+     "name": "step 1",
+     "run_file": "tools/tasks/steps/validate-current-state-evaluation.validate/01-step-1.sh",
+     "run_sha256": "dd892019b1af55784c7987350d1a9c85080aa39a20b6c9da82b47faed393072b"
+    }
+   ],
+   "artifacts": [],
+   "runner": {
+    "fetch_depth": "1",
+    "persist_credentials": "true",
+    "timeout_minutes": 30,
+    "python_version": "3.12"
+   }
+  },
+  {
+   "id": "workflow-surface-registry.validate",
+   "catalog_addition": "G17 registry gate (no folded source workflow)",
+   "events": [
+    "pull_request",
+    "push"
+   ],
+   "env": {},
+   "steps": [
+    {
+     "name": "Workflow files equal the registered surfaces; catalog verifies ALLOW",
+     "run_file": "tools/tasks/steps/workflow-surface-registry.validate/01-registry.sh",
+     "run_sha256": "811824e88664923006be2eeb35632d710f5504145967f61632ad9e8fbdcb35ca"
+    }
+   ],
+   "artifacts": [],
+   "runner": {
+    "fetch_depth": "1",
+    "persist_credentials": "false",
+    "timeout_minutes": 10,
+    "python_version": "3.11"
+   }
+  }
+ ]
+}

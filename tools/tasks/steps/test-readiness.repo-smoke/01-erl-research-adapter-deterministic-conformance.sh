@@ -1,0 +1,1 @@
+python tests/test_erl_research_adapter_deterministic.py
