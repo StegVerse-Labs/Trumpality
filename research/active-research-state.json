@@ -1,11 +1,11 @@
 {
-  "candidate_count": 546,
+  "candidate_count": 548,
   "evaluation_authority_effect": "NONE",
-  "receipt_count": 111795,
+  "receipt_count": 113620,
   "receipt_results": {
-    "CANDIDATES_IDENTIFIED": 3957,
-    "FAILED": 4013,
-    "NO_UPDATE": 103825
+    "CANDIDATES_IDENTIFIED": 4024,
+    "FAILED": 4086,
+    "NO_UPDATE": 105510
   },
   "repository": "StegVerse-Labs/Trumpality",
   "schema": "stegverse.erl.active_research_state.v1",
@@ -20,12 +20,12 @@
     "family-token-rotation-fee-capture": 31,
     "foreign-counterparty-presidential-access": 14,
     "geopolitical-financial-rail-demand": 12,
-    "institutional-bridge-asset-repricing": 47,
+    "institutional-bridge-asset-repricing": 48,
     "market-rhetoric-oil-impact": 122,
     "melania-token-preannouncement-wallets": 12,
-    "regulatory-boundary-value-accretion": 99,
+    "regulatory-boundary-value-accretion": 100,
     "trump-token-promotion-access-supply": 21,
     "wlf-positive-adoption-radar": 28
   },
-  "updated_at": "2026-10-27T00:53:56.636124+00:00"
+  "updated_at": "2026-10-27T06:37:12.670033+00:00"
 }
