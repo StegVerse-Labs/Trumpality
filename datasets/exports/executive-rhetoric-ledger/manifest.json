@@ -6,9 +6,9 @@
     "may_promote": false,
     "requires_ledger_review": true
   },
-  "generated_at": "2026-10-23T13:00:43.649018Z",
+  "generated_at": "2026-10-27T08:08:17.553739Z",
   "manifest_version": "1.0.0",
-  "producer_commit": "1d45b3fdfe4fdc1372bf62ac8e93de3968f992d6",
+  "producer_commit": "16a6f90312201f40c6a835d14c7df7ac38e39c6f",
   "producer_repository": "StegVerse-Labs/Trumpality",
   "records": [
     {
@@ -35,6 +35,32 @@
       "producer_commit": "7054bca6ec404a9502002d1c2798cd0ecdaeeeb8",
       "record_updated_at": "2026-10-13T15:26:06.320400+00:00",
       "sha256": "56474206766334d00a236912cb32f7c40c7644f6d1aad30ef25bd4fa082faa5b",
+      "supersedes": []
+    },
+    {
+      "authority": {
+        "candidate_only": true,
+        "may_promote": false
+      },
+      "corrects": [],
+      "ingestion_id": "TRUMPALITY-06bb51dea168cb385235",
+      "path": "datasets/exports/executive-rhetoric-ledger/TRUMPALITY-06bb51dea168cb385235.json",
+      "producer_commit": "16a6f90312201f40c6a835d14c7df7ac38e39c6f",
+      "record_updated_at": "2026-10-27T08:08:17.512414+00:00",
+      "sha256": "837626f34af192de75ad03514d99f3d50f361f3e0fb63f6a228b43dd8aa05a20",
+      "supersedes": []
+    },
+    {
+      "authority": {
+        "candidate_only": true,
+        "may_promote": false
+      },
+      "corrects": [],
+      "ingestion_id": "TRUMPALITY-081c312c950b93bdda07",
+      "path": "datasets/exports/executive-rhetoric-ledger/TRUMPALITY-081c312c950b93bdda07.json",
+      "producer_commit": "16a6f90312201f40c6a835d14c7df7ac38e39c6f",
+      "record_updated_at": "2026-10-27T08:08:17.512862+00:00",
+      "sha256": "4d559b6bb07dd7343995f890683ab5b27f19934790109b2826af737e5b0e0a45",
       "supersedes": []
     },
     {
@@ -147,6 +173,19 @@
         "may_promote": false
       },
       "corrects": [],
+      "ingestion_id": "TRUMPALITY-6dd94662983492ae7812",
+      "path": "datasets/exports/executive-rhetoric-ledger/TRUMPALITY-6dd94662983492ae7812.json",
+      "producer_commit": "16a6f90312201f40c6a835d14c7df7ac38e39c6f",
+      "record_updated_at": "2026-10-27T08:08:17.512665+00:00",
+      "sha256": "54aa191468ae266a2be4539cec1bdabcb4d8a234c1753896dfa054213e253f94",
+      "supersedes": []
+    },
+    {
+      "authority": {
+        "candidate_only": true,
+        "may_promote": false
+      },
+      "corrects": [],
       "ingestion_id": "TRUMPALITY-70f0a69bd848e711395f",
       "path": "datasets/exports/executive-rhetoric-ledger/TRUMPALITY-70f0a69bd848e711395f.json",
       "producer_commit": "84ab9fe51df90c3d14d24a502c3f5c81b7a4e22c",
@@ -165,6 +204,19 @@
       "producer_commit": "7054bca6ec404a9502002d1c2798cd0ecdaeeeb8",
       "record_updated_at": "2026-10-13T15:26:06.320667+00:00",
       "sha256": "30b1391b606b3074e1301efc712e7658d18c1fcc2323878a401d58cc0b2b7b19",
+      "supersedes": []
+    },
+    {
+      "authority": {
+        "candidate_only": true,
+        "may_promote": false
+      },
+      "corrects": [],
+      "ingestion_id": "TRUMPALITY-8d4033a7eb9c56b39370",
+      "path": "datasets/exports/executive-rhetoric-ledger/TRUMPALITY-8d4033a7eb9c56b39370.json",
+      "producer_commit": "16a6f90312201f40c6a835d14c7df7ac38e39c6f",
+      "record_updated_at": "2026-10-27T08:08:17.512776+00:00",
+      "sha256": "e9d754776f38bee7d216cf2fe7bd61e388345a99adeda1cd969357df2ef43dd1",
       "supersedes": []
     },
     {
@@ -269,6 +321,19 @@
       "producer_commit": "1d45b3fdfe4fdc1372bf62ac8e93de3968f992d6",
       "record_updated_at": "2026-10-23T13:00:43.596318+00:00",
       "sha256": "1f147f002de44863368676fc0cdc954068de9fdd14fd23e76fa1cde900eff49f",
+      "supersedes": []
+    },
+    {
+      "authority": {
+        "candidate_only": true,
+        "may_promote": false
+      },
+      "corrects": [],
+      "ingestion_id": "TRUMPALITY-f224891ab940c0b1c927",
+      "path": "datasets/exports/executive-rhetoric-ledger/TRUMPALITY-f224891ab940c0b1c927.json",
+      "producer_commit": "16a6f90312201f40c6a835d14c7df7ac38e39c6f",
+      "record_updated_at": "2026-10-27T08:08:17.512957+00:00",
+      "sha256": "aa853eef2e9f599aa9e9b27727a312de1d21192f00672a502b2c0ccc7f593d27",
       "supersedes": []
     }
   ]
