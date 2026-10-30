@@ -6,9 +6,9 @@
     "may_promote": false,
     "requires_ledger_review": true
   },
-  "generated_at": "2026-10-27T08:08:17.553739Z",
+  "generated_at": "2026-10-30T08:07:23.427343Z",
   "manifest_version": "1.0.0",
-  "producer_commit": "16a6f90312201f40c6a835d14c7df7ac38e39c6f",
+  "producer_commit": "2920b0bda1f314ccedcc8de8902b9e3158f6095a",
   "producer_repository": "StegVerse-Labs/Trumpality",
   "records": [
     {
@@ -61,6 +61,32 @@
       "producer_commit": "16a6f90312201f40c6a835d14c7df7ac38e39c6f",
       "record_updated_at": "2026-10-27T08:08:17.512862+00:00",
       "sha256": "4d559b6bb07dd7343995f890683ab5b27f19934790109b2826af737e5b0e0a45",
+      "supersedes": []
+    },
+    {
+      "authority": {
+        "candidate_only": true,
+        "may_promote": false
+      },
+      "corrects": [],
+      "ingestion_id": "TRUMPALITY-17a3fbbb36be5a3bf51d",
+      "path": "datasets/exports/executive-rhetoric-ledger/TRUMPALITY-17a3fbbb36be5a3bf51d.json",
+      "producer_commit": "2920b0bda1f314ccedcc8de8902b9e3158f6095a",
+      "record_updated_at": "2026-10-30T08:07:23.384832+00:00",
+      "sha256": "70b737b09b6e24374339a983ca921dfb55dea8f4b91aab416adefca74cd73c71",
+      "supersedes": []
+    },
+    {
+      "authority": {
+        "candidate_only": true,
+        "may_promote": false
+      },
+      "corrects": [],
+      "ingestion_id": "TRUMPALITY-1b7c4b0d07db5b64f12b",
+      "path": "datasets/exports/executive-rhetoric-ledger/TRUMPALITY-1b7c4b0d07db5b64f12b.json",
+      "producer_commit": "2920b0bda1f314ccedcc8de8902b9e3158f6095a",
+      "record_updated_at": "2026-10-30T08:07:23.385047+00:00",
+      "sha256": "0e2c1a6be2bee069ca2c3973b2e1eb3fdd400a1ae59a71a045842c2d1eb989a0",
       "supersedes": []
     },
     {
@@ -212,6 +238,32 @@
         "may_promote": false
       },
       "corrects": [],
+      "ingestion_id": "TRUMPALITY-83d7fa3dc1a53fd0889e",
+      "path": "datasets/exports/executive-rhetoric-ledger/TRUMPALITY-83d7fa3dc1a53fd0889e.json",
+      "producer_commit": "2920b0bda1f314ccedcc8de8902b9e3158f6095a",
+      "record_updated_at": "2026-10-30T08:07:23.384706+00:00",
+      "sha256": "e759caeeb4dd04a8e36fa62b2c5db1ac827a2e5b2e96ef3e71668fa157fd1516",
+      "supersedes": []
+    },
+    {
+      "authority": {
+        "candidate_only": true,
+        "may_promote": false
+      },
+      "corrects": [],
+      "ingestion_id": "TRUMPALITY-883e43167e7e38a2a2ba",
+      "path": "datasets/exports/executive-rhetoric-ledger/TRUMPALITY-883e43167e7e38a2a2ba.json",
+      "producer_commit": "2920b0bda1f314ccedcc8de8902b9e3158f6095a",
+      "record_updated_at": "2026-10-30T08:07:23.384435+00:00",
+      "sha256": "e14fd428d28843f63fcac4ed65726a9868412f1932040f5a085e1958bff01456",
+      "supersedes": []
+    },
+    {
+      "authority": {
+        "candidate_only": true,
+        "may_promote": false
+      },
+      "corrects": [],
       "ingestion_id": "TRUMPALITY-8d4033a7eb9c56b39370",
       "path": "datasets/exports/executive-rhetoric-ledger/TRUMPALITY-8d4033a7eb9c56b39370.json",
       "producer_commit": "16a6f90312201f40c6a835d14c7df7ac38e39c6f",
@@ -243,6 +295,19 @@
       "producer_commit": "7054bca6ec404a9502002d1c2798cd0ecdaeeeb8",
       "record_updated_at": "2026-10-13T15:26:06.320505+00:00",
       "sha256": "61fd8d9ed26ed3ea75aaa9b640432a8f58fd5cde5baad5f44e521df113777c0d",
+      "supersedes": []
+    },
+    {
+      "authority": {
+        "candidate_only": true,
+        "may_promote": false
+      },
+      "corrects": [],
+      "ingestion_id": "TRUMPALITY-bebc2a62bd11bfbe21a5",
+      "path": "datasets/exports/executive-rhetoric-ledger/TRUMPALITY-bebc2a62bd11bfbe21a5.json",
+      "producer_commit": "2920b0bda1f314ccedcc8de8902b9e3158f6095a",
+      "record_updated_at": "2026-10-30T08:07:23.384935+00:00",
+      "sha256": "b5dedf25e2c652ac9e591e0bd3c0f041e18dc1db00a373de004cd796820e26b6",
       "supersedes": []
     },
     {

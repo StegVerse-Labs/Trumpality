@@ -1,0 +1,34 @@
+{
+  "admissibility_request": "context-only",
+  "claimed_use": "context-only",
+  "content_summary": "United States Courts",
+  "ingestion_date": "2026-10-30T08:07:23.384935+00:00",
+  "ingestion_id": "TRUMPALITY-bebc2a62bd11bfbe21a5",
+  "ledger_relevance": "Candidate contextual source concerning the monitored public figure; no claim, action, causation, or influence relationship is asserted by this export.",
+  "notes": "native_record_id=5409b9c2-e9a8-4fcf-a57f-08da5a7282c9; native_category=source_candidate; native_verification=corroborated_secondary; export does not confer evidentiary standing",
+  "object_class": "source_receipt",
+  "producer_commit": "2920b0bda1f314ccedcc8de8902b9e3158f6095a",
+  "producer_path": "data/processed/records.sqlite#records/5409b9c2-e9a8-4fcf-a57f-08da5a7282c9",
+  "producer_repo": "StegVerse-Labs/Trumpality",
+  "related_topic_id": "donald-j-trump-general",
+  "related_topic_name": "Donald J. Trump \u2014 general monitored sources",
+  "review_status": "pending",
+  "source_receipts": [
+    {
+      "access_date": "2026-10-30T08:07:22.749361+00:00",
+      "admissibility_use": "admissible-for-context-only",
+      "archive_url": "",
+      "confidence": "high",
+      "evidence_role": "context-only-source",
+      "institutional_proximity": "unknown-proximity",
+      "notes": "Native Trumpality source candidate. Source role, institutional proximity, claim relationship, and factual use require independent ledger review.",
+      "publication_date": "",
+      "red_flags": [],
+      "source_id": "trumpality:5409b9c2-e9a8-4fcf-a57f-08da5a7282c9",
+      "source_type": "unknown-source-type",
+      "title": "United States Courts",
+      "url": "https://www.uscourts.gov/",
+      "verification_status": "verified-secondary"
+    }
+  ]
+}
