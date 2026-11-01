@@ -1,11 +1,11 @@
 {
   "candidate_count": 691,
   "evaluation_authority_effect": "NONE",
-  "receipt_count": 146470,
+  "receipt_count": 148295,
   "receipt_results": {
-    "CANDIDATES_IDENTIFIED": 5247,
-    "FAILED": 5400,
-    "NO_UPDATE": 135823
+    "CANDIDATES_IDENTIFIED": 5303,
+    "FAILED": 5473,
+    "NO_UPDATE": 137519
   },
   "repository": "StegVerse-Labs/Trumpality",
   "schema": "stegverse.erl.active_research_state.v1",
@@ -27,5 +27,5 @@
     "trump-token-promotion-access-supply": 23,
     "wlf-positive-adoption-radar": 31
   },
-  "updated_at": "2026-10-31T18:15:28.465773+00:00"
+  "updated_at": "2026-11-01T00:41:47.458132+00:00"
 }
