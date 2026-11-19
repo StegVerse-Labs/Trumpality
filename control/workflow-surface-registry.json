@@ -99,11 +99,11 @@
       "permissions": {
         "contents": "write"
       },
-      "reason": "KEEP_EXISTING_SURFACE_UNCHANGED (documented exception, destination-owned writer): contents: write; scripts/erl_research_agent.py L17 names it as RETRY_ENTRYPOINT (owning goal StegVerse-Labs/Trumpality#8); green through 2026-10-25. Existing triggers byte-unchanged.",
-      "verbatim_sha256": "2ba339dcf3ec9c4d7960795d8f0ad7c3c94b85a10e6a7192e3d7df4c1a3e8e88",
+      "reason": "KEEP_EXISTING_SURFACE_UNCHANGED (documented exception, destination-owned writer): contents: write; scripts/erl_research_agent.py names it as RETRY_ENTRYPOINT (owning goal StegVerse-Labs/Trumpality#8). Receipt-ledger segmentation/recovery cure PR #23 updates the body while preserving the existing schedule/workflow_dispatch triggers.",
+      "verbatim_sha256": "0a81b3aad652cf6026ac371e6c8c10eca2f8cd014fdd77aef443880bdb60bca2",
       "exception": {
         "lifecycle": "destination-owned writer (contents: write)",
-        "justification": "KEEP_EXISTING_SURFACE_UNCHANGED (documented exception, destination-owned writer): contents: write; scripts/erl_research_agent.py L17 names it as RETRY_ENTRYPOINT (owning goal StegVerse-Labs/Trumpality#8); green through 2026-10-25. Existing triggers byte-unchanged.",
+        "justification": "KEEP_EXISTING_SURFACE_UNCHANGED (documented exception, destination-owned writer): contents: write; scripts/erl_research_agent.py names it as RETRY_ENTRYPOINT (owning goal StegVerse-Labs/Trumpality#8). Receipt-ledger segmentation/recovery cure PR #23 updates the body while preserving the existing schedule/workflow_dispatch triggers.",
         "within_exception_ceiling": true
       }
     },
@@ -183,3 +183,4 @@
     "next_attempt": "the next pull request touching .github/workflows/ or those contracts"
   }
 }
+
