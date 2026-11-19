@@ -13,6 +13,21 @@ def read_jsonl(path): return [json.loads(x) for x in path.read_text(encoding='ut
 def sha(path): return hashlib.sha256(path.read_bytes()).hexdigest()
 def main():
     adapter=load_adapter(); adapter.HOST_SPACING=0; adapter.RETRY_DELAY=0
+    # Segments are one logical append-only stream. Completed segments remain
+    # byte exact; only the final segment may grow, and it rotates before bound.
+    with tempfile.TemporaryDirectory() as segment_dir:
+        sb=pathlib.Path(segment_dir); sd=sb/'research/research_receipts'; sd.mkdir(parents=True)
+        first=(json.dumps({'receipt_id':'one'},sort_keys=True)+'\n').encode()
+        (sd/'research_receipts-000000.jsonl').write_bytes(first)
+        adapter.RECEIPT_SEGMENT_BYTES=len(first)+1
+        adapter.append_receipt(sb,{'receipt_id':'two'},False)
+        paths=adapter.receipt_paths(sb)
+        assert [p.name for p in paths]==['research_receipts-000000.jsonl','research_receipts-000001.jsonl']
+        assert paths[0].read_bytes()==first, 'completed segment bytes must remain immutable'
+        logical=b''.join(p.read_bytes() for p in paths)
+        assert adapter.receipt_count(sb)==2 and len(adapter.read_receipts(sb))==2
+        assert adapter.receipt_sha(sb)==hashlib.sha256(logical).hexdigest()
+    adapter.RECEIPT_SEGMENT_BYTES=90*1024*1024
     canonical=json.loads((ROOT/'research/frontier.json').read_text(encoding='utf-8'))
     assert len([t for t in canonical['trajectories'] if t['state']=='ACTIVE'])==12
     with tempfile.TemporaryDirectory() as canonical_dir:
@@ -140,3 +155,4 @@ def main():
         print(json.dumps({'status':'PASS','repository':REPOSITORY,'active_trajectory_requests':1,'saturated_trajectory_requests':0,'candidates':2,'receipts':2,'supporting_and_contrary_leads_preserved':True,'null_result_preserved':True,'duplicate_links_collapsed':True,'native_state_unchanged':True,'actionable_non_allow_dispositions':True,'allow_transitions_chained':True,'github_token_authority':'NONE','credential_authority':'TV/TVC','authority_effect':'NONE'},sort_keys=True))
     return 0
 if __name__=='__main__': raise SystemExit(main())
+
