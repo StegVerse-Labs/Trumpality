@@ -85,7 +85,7 @@ Installed on `main`:
 - `research/frontier.json`
 - `research/acquisition_requests.jsonl`
 - `research/source_candidates.jsonl`
-- `research/research_receipts.jsonl`
+- `research/research_receipts/research_receipts-NNNNNN.jsonl`
 - `research/conformance.json`
 - `scripts/erl_research_agent.py`
 
@@ -135,3 +135,4 @@ The original normalization session conditions remain SATISFIED. The new research
 - research-surface integration: 1/2 pending ERL registry promotion
 - research-surface goal-activation: 68%
 - session-consolidation: original 3/3 goals complete; research-surface extension remains active
+
