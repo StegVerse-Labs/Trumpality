@@ -6,9 +6,9 @@
     "may_promote": false,
     "requires_ledger_review": true
   },
-  "generated_at": "2026-11-20T08:05:05.885303Z",
+  "generated_at": "2026-11-24T08:06:49.588266Z",
   "manifest_version": "1.0.0",
-  "producer_commit": "925660549f656b94c2d358078c4a5853678bba04",
+  "producer_commit": "91e2e56284583b99bb71f4463f6d895a9ea8a8e3",
   "producer_repository": "StegVerse-Labs/Trumpality",
   "records": [
     {
@@ -303,6 +303,19 @@
         "may_promote": false
       },
       "corrects": [],
+      "ingestion_id": "TRUMPALITY-3e638271374f6c89834a",
+      "path": "datasets/exports/executive-rhetoric-ledger/TRUMPALITY-3e638271374f6c89834a.json",
+      "producer_commit": "91e2e56284583b99bb71f4463f6d895a9ea8a8e3",
+      "record_updated_at": "2026-11-24T08:06:49.540390+00:00",
+      "sha256": "1c40a97fb4c6617c811e94b9fe62e348158385d179e2cc49b743f517fa6bd3d2",
+      "supersedes": []
+    },
+    {
+      "authority": {
+        "candidate_only": true,
+        "may_promote": false
+      },
+      "corrects": [],
       "ingestion_id": "TRUMPALITY-40351b0ce157352ea693",
       "path": "datasets/exports/executive-rhetoric-ledger/TRUMPALITY-40351b0ce157352ea693.json",
       "producer_commit": "b361508fa2f0417c2a5a254db41982b43c9896e4",
@@ -451,6 +464,19 @@
       "producer_commit": "84ab9fe51df90c3d14d24a502c3f5c81b7a4e22c",
       "record_updated_at": "2026-10-20T13:10:52.685011+00:00",
       "sha256": "bab45be3c412ba91ac7f1a41f3edff3f214c32822ca512fa7f71f0f77aec9c46",
+      "supersedes": []
+    },
+    {
+      "authority": {
+        "candidate_only": true,
+        "may_promote": false
+      },
+      "corrects": [],
+      "ingestion_id": "TRUMPALITY-74e55b83f2b1a3b1e6f9",
+      "path": "datasets/exports/executive-rhetoric-ledger/TRUMPALITY-74e55b83f2b1a3b1e6f9.json",
+      "producer_commit": "91e2e56284583b99bb71f4463f6d895a9ea8a8e3",
+      "record_updated_at": "2026-11-24T08:06:49.540200+00:00",
+      "sha256": "d8968a80d5fe56f575ee588324becdfdd0de4007378104d43b5f2d13ded49542",
       "supersedes": []
     },
     {
@@ -615,6 +641,19 @@
         "may_promote": false
       },
       "corrects": [],
+      "ingestion_id": "TRUMPALITY-b79ef049c18b29be833c",
+      "path": "datasets/exports/executive-rhetoric-ledger/TRUMPALITY-b79ef049c18b29be833c.json",
+      "producer_commit": "91e2e56284583b99bb71f4463f6d895a9ea8a8e3",
+      "record_updated_at": "2026-11-24T08:06:49.540599+00:00",
+      "sha256": "406eb59639f930d68827b2d72e673374f24f6d07d361c7e61d41feda7aaa85b9",
+      "supersedes": []
+    },
+    {
+      "authority": {
+        "candidate_only": true,
+        "may_promote": false
+      },
+      "corrects": [],
       "ingestion_id": "TRUMPALITY-b7d7e797088b356ce613",
       "path": "datasets/exports/executive-rhetoric-ledger/TRUMPALITY-b7d7e797088b356ce613.json",
       "producer_commit": "925660549f656b94c2d358078c4a5853678bba04",
@@ -685,6 +724,19 @@
       "producer_commit": "1d45b3fdfe4fdc1372bf62ac8e93de3968f992d6",
       "record_updated_at": "2026-10-23T13:00:43.596753+00:00",
       "sha256": "7fd2dcf5469ad252321e9ef76c2aca6dedffd96ee8d8e0c238681ac706f74dc8",
+      "supersedes": []
+    },
+    {
+      "authority": {
+        "candidate_only": true,
+        "may_promote": false
+      },
+      "corrects": [],
+      "ingestion_id": "TRUMPALITY-cbc17020464369054910",
+      "path": "datasets/exports/executive-rhetoric-ledger/TRUMPALITY-cbc17020464369054910.json",
+      "producer_commit": "91e2e56284583b99bb71f4463f6d895a9ea8a8e3",
+      "record_updated_at": "2026-11-24T08:06:49.539719+00:00",
+      "sha256": "b5f5dc5659b695aa3f1b561bd237a98c02162e8bea33a068e5ca508abb66fef1",
       "supersedes": []
     },
     {
@@ -789,6 +841,19 @@
       "producer_commit": "16a6f90312201f40c6a835d14c7df7ac38e39c6f",
       "record_updated_at": "2026-10-27T08:08:17.512957+00:00",
       "sha256": "aa853eef2e9f599aa9e9b27727a312de1d21192f00672a502b2c0ccc7f593d27",
+      "supersedes": []
+    },
+    {
+      "authority": {
+        "candidate_only": true,
+        "may_promote": false
+      },
+      "corrects": [],
+      "ingestion_id": "TRUMPALITY-fa175ff0899fc6d71554",
+      "path": "datasets/exports/executive-rhetoric-ledger/TRUMPALITY-fa175ff0899fc6d71554.json",
+      "producer_commit": "91e2e56284583b99bb71f4463f6d895a9ea8a8e3",
+      "record_updated_at": "2026-11-24T08:06:49.540001+00:00",
+      "sha256": "346b865f7948536dac2d901386c89894b56a88a30e20c319cc3e81cf6da6a68e",
       "supersedes": []
     }
   ]
