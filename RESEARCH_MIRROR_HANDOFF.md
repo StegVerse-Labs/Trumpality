@@ -2,6 +2,14 @@
 
 Scope: ERL multi-trajectory research acquisition extension only. This handoff does not supersede `docs/OSINT_PROJECTION_MIRROR_HANDOFF.md` for reviewed projection import/current-state evaluation.
 
+## 2026-11-18 receipt-ledger continuity cure
+- Failed scheduled run: `44430113790` at head `925660549f656b94c2d358078c4a5853678bba04`; GitHub rejected the generated 100.57 MB single JSONL file.
+- Recovery artifact: `erl-active-research-44430113790`, artifact `14486216257`, SHA-256 `5b80f397b13df1f1c2f6d437e92f5651da1f29c9fff030a83f6c3f629920fcf6`.
+- Prefix proof: the artifact's first 104,429,829 bytes have Git blob SHA `ff07e3cfe28a580454df4665de31a2deaddccff1` and SHA-256 `820676c236a0aa789338c140ca9ba578ff7ed952ce633fbe1061d0dff696cedb`, exactly matching current main.
+- Recovered successor: 1,825 receipts and 27 candidates; logical receipt count 190,270; logical receipt SHA-256 `cd78fc3724b5ead5bfe08b7171ec609df3c81595cdbd454390459d5d8782933c`.
+- Storage contract: numbered append-only segments under `research/research_receipts/`; lexical read order; only the final segment writable; rotate before 90 MiB; no LFS or external dependency.
+- Authority effect: NONE. Recovery preserves filed acquisition evidence and does not mutate native Trumpality evaluation records or grant Registry/WorkerCoordinator authority.
+
 ## Authority
 - goal_id: ERL-RESEARCH-SURFACE-TRUMPALITY-001
 - repository: StegVerse-Labs/Trumpality
@@ -24,7 +32,7 @@ Scope: ERL multi-trajectory research acquisition extension only. This handoff do
 - `research/frontier.json`
 - `research/acquisition_requests.jsonl`
 - `research/source_candidates.jsonl`
-- `research/research_receipts.jsonl`
+- `research/research_receipts/research_receipts-NNNNNN.jsonl`
 - `research/conformance.json`
 - `scripts/erl_research_agent.py`
 - `tests/test_erl_research_adapter_deterministic.py`
@@ -57,3 +65,4 @@ Validated: ACTIVE searched, SATURATED excluded, supporting/contrary leads preser
 - validation: 3/3
 - integration: 2/3 until central registry promotion
 - goal-activation: 95%
+

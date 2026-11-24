@@ -28,7 +28,13 @@ jobs:
         run: python tests/test_erl_research_adapter_deterministic.py
 
       - name: Record pre-cycle receipt count
-        run: echo "PRE_CYCLE_RECEIPTS=$(grep -c . research/research_receipts.jsonl || true)" >> "$GITHUB_ENV"
+        run: |
+          echo "PRE_CYCLE_RECEIPTS=$(python - <<'PY'
+          import pathlib
+          from scripts.erl_research_agent import receipt_count
+          print(receipt_count(pathlib.Path('.')))
+          PY
+          )" >> "$GITHUB_ENV"
 
       - name: Acquire new trajectory-scoped source candidates
         run: python scripts/erl_research_agent.py
@@ -37,11 +43,10 @@ jobs:
         run: |
           python - <<'PY'
           import json,pathlib
-          from scripts.erl_research_agent import active
+          from scripts.erl_research_agent import active,read_receipts
           base=pathlib.Path('.')
           requests=active(base)
-          path=base/'research/research_receipts.jsonl'
-          receipts=[json.loads(line) for line in path.read_text(encoding='utf-8').splitlines() if line.strip()] if path.exists() else []
+          receipts=read_receipts(base)
           import os
           before=int(os.environ.get('PRE_CYCLE_RECEIPTS') or 0)
           # Pre-existing receipts must not satisfy this cycle; require fresh appended receipts.
@@ -54,6 +59,7 @@ jobs:
         run: |
           python - <<'PY'
           import json, pathlib, datetime
+          from scripts.erl_research_agent import read_receipts
           root=pathlib.Path('research')
           def load_jsonl(p):
               if not p.exists(): return []
@@ -63,7 +69,7 @@ jobs:
               return out
           # Acquisition JSONL is append-only; never rewrite or deduplicate history.
           candidates=load_jsonl(root/'source_candidates.jsonl')
-          receipts=load_jsonl(root/'research_receipts.jsonl')
+          receipts=read_receipts(pathlib.Path('.'))
           status_counts={}
           for r in receipts:
               status_counts[r.get('result','UNKNOWN')]=status_counts.get(r.get('result','UNKNOWN'),0)+1
@@ -92,7 +98,7 @@ jobs:
         run: |
           git config user.name 'stegverse-research-bot'
           git config user.email 'actions@users.noreply.github.com'
-          for f in research/source_candidates.jsonl research/research_receipts.jsonl research/active-research-state.json research/transition_dispositions.jsonl; do
+          for f in research/source_candidates.jsonl research/research_receipts research/active-research-state.json research/transition_dispositions.jsonl; do
             [ -f "$f" ] && git add "$f"
           done
           if git diff --cached --quiet; then
@@ -111,7 +117,8 @@ jobs:
           name: erl-active-research-${{ github.run_id }}
           path: |
             research/source_candidates.jsonl
-            research/research_receipts.jsonl
+            research/research_receipts/
             research/active-research-state.json
             research/transition_dispositions.jsonl
           retention-days: 90
+
